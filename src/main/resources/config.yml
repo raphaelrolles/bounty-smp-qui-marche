@@ -1,0 +1,36 @@
+# ================================
+#   Configuration - Bounty SMP
+# ================================
+
+# Récompense de base pour un kill "normal" (joueur sans prime)
+kill-reward: 5
+
+# Anti-farm : si tu tues LE MEME joueur plusieurs fois avant ce délai (en secondes),
+# la récompense est fortement réduite pour éviter le farm entre amis.
+anti-farm:
+  cooldown-seconds: 600
+  reduced-reward: 1
+
+# Système de danger automatique : plus un joueur enchaine les kills dans une fenêtre
+# de temps donnée, plus sa prime augmente automatiquement.
+danger:
+  window-seconds: 600
+  # Nombre de kills (dans la fenêtre) -> bonus de prime ajouté (une seule fois par palier)
+  thresholds:
+    1: 10
+    3: 50
+    5: 100
+    10: 250
+
+# Prix de la boutique /bounty shop
+shop:
+  tracker-price: 50
+  contract-price: 100
+  hunter-kit-price: 150
+
+# Titres de réputation en fonction du nombre de primes récupérées
+reputation:
+  0: "Aucun"
+  1: "Chasseur"
+  5: "Chasseur Confirme"
+  15: "Master Hunter"

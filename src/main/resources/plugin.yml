@@ -1,0 +1,22 @@
+name: BountySMP
+version: 1.0.0
+main: com.bountysmp.BountySMP
+api-version: 1.21
+author: BountySMP
+description: Plugin de chasse aux primes pour SMP vanilla (Bounty Coins, contrats, wanted, boutique).
+
+commands:
+  bounty:
+    description: Commande principale du système de primes.
+    usage: /bounty [set|shop|top|addcoins|removecoins|setadmin] ...
+  wanted:
+    description: Affiche le classement des joueurs recherchés.
+    usage: /wanted
+
+permissions:
+  bountysmp.admin:
+    description: Permet d'utiliser les commandes admin du plugin.
+    default: op
+  bountysmp.use:
+    description: Permet d'utiliser les commandes joueur du plugin.
+    default: true
