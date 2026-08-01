@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -26,6 +27,14 @@ public class ShopGUI implements Listener {
 
     public static final String SHOP_TITLE = "Boutique Bounty";
 
+    /** Marqueur d'identité fiable pour l'inventaire boutique (ne dépend pas du titre affiché). */
+    private static class ShopHolder implements InventoryHolder {
+        @Override
+        public Inventory getInventory() {
+            return null; // non utilisé, sert uniquement de marqueur d'identité
+        }
+    }
+
     private final BountySMP plugin;
     private final NamespacedKey shopItemKey;
 
@@ -39,7 +48,7 @@ public class ShopGUI implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = org.bukkit.Bukkit.createInventory(null, 27, Component.text(SHOP_TITLE, NamedTextColor.DARK_RED));
+        Inventory inv = org.bukkit.Bukkit.createInventory(new ShopHolder(), 27, Component.text(SHOP_TITLE, NamedTextColor.DARK_RED));
 
         int trackerPrice = plugin.getConfig().getInt("shop.tracker-price", 50);
         int contractPrice = plugin.getConfig().getInt("shop.contract-price", 100);
@@ -72,9 +81,15 @@ public class ShopGUI implements Listener {
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (!SHOP_TITLE.equals(event.getView().getTitle())) return;
+        if (!(event.getInventory().getHolder() instanceof ShopHolder)) return;
 
+        // Bloque TOUT clic dans cette vue (boutique + inventaire du joueur en dessous)
         event.setCancelled(true);
+
+        // On ne traite que les clics sur un objet de la boutique elle-même (pas l'inventaire du joueur en bas)
+        if (!(event.getClickedInventory() != null && event.getClickedInventory().getHolder() instanceof ShopHolder)) {
+            return;
+        }
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getItemMeta() == null) return;
 
