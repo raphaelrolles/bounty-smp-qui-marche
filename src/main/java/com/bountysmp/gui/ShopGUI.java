@@ -48,6 +48,10 @@ public class ShopGUI implements Listener {
     }
 
     public void open(Player player) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        player.sendMessage(Component.text("💰 Ton solde : ", NamedTextColor.GOLD)
+                .append(Component.text((long) data.getCoins() + " Bounty Coins", NamedTextColor.YELLOW)));
+
         Inventory inv = org.bukkit.Bukkit.createInventory(new ShopHolder(), 27, Component.text(SHOP_TITLE, NamedTextColor.DARK_RED));
 
         int trackerPrice = plugin.getConfig().getInt("shop.tracker-price", 50);
@@ -65,6 +69,14 @@ public class ShopGUI implements Listener {
         inv.setItem(15, buildShopItem(Material.GOLDEN_APPLE, "kit",
                 "§aHunter Kit", kitPrice,
                 List.of("§7Pommes dorées, nourriture,", "§7flèches et un arc.", "", "§ePrix : " + kitPrice + " coins")));
+
+        // Item décoratif (non achetable) affichant le solde du joueur
+        ItemStack balanceItem = new ItemStack(Material.SUNFLOWER);
+        ItemMeta balanceMeta = balanceItem.getItemMeta();
+        balanceMeta.displayName(Component.text("§6Ton solde").decoration(TextDecoration.ITALIC, false));
+        balanceMeta.lore(List.of(Component.text("§e" + (long) data.getCoins() + " Bounty Coins").decoration(TextDecoration.ITALIC, false)));
+        balanceItem.setItemMeta(balanceMeta);
+        inv.setItem(4, balanceItem);
 
         player.openInventory(inv);
     }
