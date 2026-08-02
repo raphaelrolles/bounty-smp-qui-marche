@@ -77,6 +77,15 @@ public class DataManager {
                 data.setCoins(s.getDouble("coins", 0));
                 data.setBounty(s.getDouble("bounty", 0));
                 data.setBountiesClaimed(s.getInt("bountiesClaimed", 0));
+                data.getOneTimePurchases().addAll(s.getStringList("oneTimePurchases"));
+                String trackerTargetStr = s.getString("trackerTarget", null);
+                if (trackerTargetStr != null) {
+                    try {
+                        data.setTrackerTarget(UUID.fromString(trackerTargetStr));
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+                data.setTrackerCooldownUntil(s.getLong("trackerCooldownUntil", 0));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -104,6 +113,11 @@ public class DataManager {
             yaml.set(path + ".coins", data.getCoins());
             yaml.set(path + ".bounty", data.getBounty());
             yaml.set(path + ".bountiesClaimed", data.getBountiesClaimed());
+            yaml.set(path + ".oneTimePurchases", new java.util.ArrayList<>(data.getOneTimePurchases()));
+            if (data.getTrackerTarget() != null) {
+                yaml.set(path + ".trackerTarget", data.getTrackerTarget().toString());
+            }
+            yaml.set(path + ".trackerCooldownUntil", data.getTrackerCooldownUntil());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

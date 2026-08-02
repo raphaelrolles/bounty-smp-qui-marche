@@ -34,6 +34,15 @@ public class PlayerData {
     // Nombre de primes récupérées (réputation)
     private int bountiesClaimed = 0;
 
+    // Objets achetés une seule fois en boutique (ex: "diamond_kit", "netherite_kit")
+    private final Set<String> oneTimePurchases = new HashSet<>();
+
+    // Joueur actuellement traqué avec le Tracker (choisi via /wanted ou le menu du tracker)
+    private UUID trackerTarget;
+
+    // Timestamp (ms) jusqu'auquel le tracker est en cooldown
+    private long trackerCooldownUntil = 0L;
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -102,5 +111,29 @@ public class PlayerData {
 
     public void setBountiesClaimed(int value) {
         this.bountiesClaimed = value;
+    }
+
+    public Set<String> getOneTimePurchases() {
+        return oneTimePurchases;
+    }
+
+    public boolean hasPurchased(String id) {
+        return oneTimePurchases.contains(id);
+    }
+
+    public UUID getTrackerTarget() {
+        return trackerTarget;
+    }
+
+    public void setTrackerTarget(UUID trackerTarget) {
+        this.trackerTarget = trackerTarget;
+    }
+
+    public long getTrackerCooldownUntil() {
+        return trackerCooldownUntil;
+    }
+
+    public void setTrackerCooldownUntil(long trackerCooldownUntil) {
+        this.trackerCooldownUntil = trackerCooldownUntil;
     }
 }

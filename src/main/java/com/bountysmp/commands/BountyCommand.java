@@ -27,24 +27,13 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        DataManager dm = plugin.getDataManager();
-
-        // /bounty  -> affiche ses propres infos
+        // /bounty  -> ouvre le menu graphique (profil + raccourcis)
         if (args.length == 0) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage("Cette commande doit être utilisée en jeu.");
                 return true;
             }
-            PlayerData data = dm.get(player.getUniqueId());
-            player.sendMessage(Component.text("===== Votre profil Bounty =====", NamedTextColor.GOLD));
-            player.sendMessage(Component.text("Vos coins : ", NamedTextColor.GRAY)
-                    .append(Component.text((long) data.getCoins(), NamedTextColor.YELLOW)));
-            player.sendMessage(Component.text("Votre prime : ", NamedTextColor.GRAY)
-                    .append(Component.text((long) data.getBounty(), NamedTextColor.RED)));
-            player.sendMessage(Component.text("Titre : ", NamedTextColor.GRAY)
-                    .append(Component.text(plugin.getReputationUtil().getTitle(data.getBountiesClaimed()), NamedTextColor.GOLD)));
-            player.sendMessage(Component.text("Primes récupérées : ", NamedTextColor.GRAY)
-                    .append(Component.text(data.getBountiesClaimed(), NamedTextColor.AQUA)));
+            plugin.getBountyMenuGUI().open(player);
             return true;
         }
 
@@ -127,8 +116,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             OfflinePlayer op = Bukkit.getOfflinePlayer(data.getUuid());
             sender.sendMessage(Component.text(rank + ". ", NamedTextColor.GRAY)
                     .append(Component.text(op.getName() != null ? op.getName() : "?", NamedTextColor.AQUA))
-                    .append(Component.text(" - " + data.getBountiesClaimed() + " primes - ", NamedTextColor.GRAY))
-                    .append(Component.text(plugin.getReputationUtil().getTitle(data.getBountiesClaimed()), NamedTextColor.GOLD)));
+                    .append(Component.text(" - " + data.getBountiesClaimed() + " primes récupérées", NamedTextColor.GRAY)));
             rank++;
         }
     }

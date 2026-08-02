@@ -3,11 +3,12 @@ package com.bountysmp;
 import com.bountysmp.commands.BountyCommand;
 import com.bountysmp.commands.WantedCommand;
 import com.bountysmp.data.DataManager;
+import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.ShopGUI;
-import com.bountysmp.listeners.ChatInputListener;
+import com.bountysmp.gui.WantedGUI;
 import com.bountysmp.listeners.PlayerDeathListener;
+import com.bountysmp.listeners.SmokeBombListener;
 import com.bountysmp.listeners.TrackerListener;
-import com.bountysmp.util.ReputationUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BountySMP extends JavaPlugin {
@@ -16,7 +17,8 @@ public final class BountySMP extends JavaPlugin {
 
     private DataManager dataManager;
     private ShopGUI shopGUI;
-    private ReputationUtil reputationUtil;
+    private WantedGUI wantedGUI;
+    private BountyMenuGUI bountyMenuGUI;
 
     @Override
     public void onEnable() {
@@ -27,8 +29,9 @@ public final class BountySMP extends JavaPlugin {
         this.dataManager = new DataManager(getDataFolder(), getLogger());
         this.dataManager.load();
 
-        this.reputationUtil = new ReputationUtil(this);
         this.shopGUI = new ShopGUI(this);
+        this.wantedGUI = new WantedGUI(this);
+        this.bountyMenuGUI = new BountyMenuGUI(this);
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
@@ -39,8 +42,10 @@ public final class BountySMP extends JavaPlugin {
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(shopGUI, this);
+        getServer().getPluginManager().registerEvents(wantedGUI, this);
+        getServer().getPluginManager().registerEvents(bountyMenuGUI, this);
         getServer().getPluginManager().registerEvents(new TrackerListener(this), this);
-        getServer().getPluginManager().registerEvents(new ChatInputListener(this), this);
+        getServer().getPluginManager().registerEvents(new SmokeBombListener(this), this);
 
         // Sauvegarde périodique (toutes les 5 minutes) pour éviter les pertes de données
         getServer().getScheduler().runTaskTimerAsynchronously(this, () -> dataManager.save(), 20L * 60 * 5, 20L * 60 * 5);
@@ -68,7 +73,11 @@ public final class BountySMP extends JavaPlugin {
         return shopGUI;
     }
 
-    public ReputationUtil getReputationUtil() {
-        return reputationUtil;
+    public WantedGUI getWantedGUI() {
+        return wantedGUI;
+    }
+
+    public BountyMenuGUI getBountyMenuGUI() {
+        return bountyMenuGUI;
     }
 }

@@ -49,9 +49,6 @@ public class PlayerDeathListener implements Listener {
                     .append(Component.text(victim.getName(), NamedTextColor.RED))
                     .append(Component.text(" et remporte ", NamedTextColor.GRAY))
                     .append(Component.text((long) bountyOnVictim + " Bounty Coins !", NamedTextColor.YELLOW)));
-
-            killer.sendMessage(Component.text("Titre mis à jour : ", NamedTextColor.GRAY)
-                    .append(Component.text(plugin.getReputationUtil().getTitle(killerData.getBountiesClaimed()), NamedTextColor.GOLD)));
         } else {
             // --- 2. Kill normal : récompense de base, avec anti-farm ---
             double reward = computeKillReward(killerData, victim.getUniqueId());

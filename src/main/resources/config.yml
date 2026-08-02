@@ -25,12 +25,19 @@ danger:
 # Prix de la boutique /bounty shop
 shop:
   tracker-price: 50
-  contract-price: 100
   hunter-kit-price: 150
+  diamond-kit-price: 400
+  netherite-kit-price: 1500
+  smoke-bomb-price: 80
 
-# Titres de réputation en fonction du nombre de primes récupérées
-reputation:
-  0: "Aucun"
-  1: "Chasseur"
-  5: "Chasseur Confirme"
-  15: "Master Hunter"
+# Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
+ore-exchange:
+  diamond-rate: 5
+  emerald-rate: 2
+  netherite-ingot-rate: 30
+
+# Objet Tracker : cooldown entre deux localisations et imprécision des coordonnées
+tracker:
+  cooldown-seconds: 30
+  imprecision-blocks: 40
+
