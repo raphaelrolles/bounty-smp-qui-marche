@@ -5,6 +5,8 @@ import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.ShopGUI;
 import com.bountysmp.gui.WantedGUI;
+import com.bountysmp.listeners.ChaosGrenadeListener;
+import com.bountysmp.listeners.DashItemListener;
 import com.bountysmp.listeners.PlayerDeathListener;
 import com.bountysmp.listeners.SmokeBombListener;
 import com.bountysmp.listeners.TrackerListener;
@@ -44,6 +46,8 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(bountyMenuGUI, this);
         getServer().getPluginManager().registerEvents(new TrackerListener(this), this);
         getServer().getPluginManager().registerEvents(new SmokeBombListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChaosGrenadeListener(this), this);
+        getServer().getPluginManager().registerEvents(new DashItemListener(this), this);
 
         // Sauvegarde périodique (toutes les 5 minutes) pour éviter les pertes de données
         getServer().getScheduler().runTaskTimerAsynchronously(this, () -> dataManager.save(), 20L * 60 * 5, 20L * 60 * 5);

@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -22,8 +23,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Gère l'objet "Tracker" acheté en boutique :
- * - Clic droit + Maj (sneak) : ouvre le menu /wanted pour choisir sa cible.
- * - Clic droit simple : donne des coordonnées approximatives de la cible (avec cooldown).
+ * - Clic droit + Maj (sneak) : ouvre le menu des recherchés pour choisir sa cible.
+ * - Clic droit simple : donne des coordonnées approximatives de la cible.
+ * Le cooldown utilise le système natif de Minecraft (comme une perle d'ender),
+ * visible directement sur l'icône de l'objet dans la hotbar.
  */
 public class TrackerListener implements Listener {
 
@@ -71,16 +74,14 @@ public class TrackerListener implements Listener {
             return;
         }
 
-        long now = System.currentTimeMillis();
-        if (now < data.getTrackerCooldownUntil()) {
-            long remaining = (data.getTrackerCooldownUntil() - now) / 1000L + 1;
-            player.sendMessage(Component.text("Le Tracker recharge encore " + remaining + "s...", NamedTextColor.GRAY));
+        if (player.hasCooldown(Material.COMPASS)) {
+            player.sendMessage(Component.text("Le Tracker recharge encore...", NamedTextColor.GRAY));
             return;
         }
 
         int cooldownSeconds = plugin.getConfig().getInt("tracker.cooldown-seconds", 30);
         int imprecision = plugin.getConfig().getInt("tracker.imprecision-blocks", 40);
-        data.setTrackerCooldownUntil(now + cooldownSeconds * 1000L);
+        player.setCooldown(Material.COMPASS, cooldownSeconds * 20);
 
         Location loc = onlineTarget.getLocation();
         int jitterX = ThreadLocalRandom.current().nextInt(-imprecision, imprecision + 1);

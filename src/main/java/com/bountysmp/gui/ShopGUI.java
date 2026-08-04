@@ -8,7 +8,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,8 +24,8 @@ import java.util.List;
 
 /**
  * Boutique Bounty : /bounty shop
- * Page 0 = Kits (Kit Fer, Kit Diamant, Kit Netherite [unique])
- * Page 1 = Objets (Tracker, Feu d'artifice du Fugitif, Lame du Bourreau, Vendre des minerais)
+ * Page 0 = Kits (Kit Fer, Kit Diamant, Kit Netherite)
+ * Page 1 = Objets (Tracker, Feu d'artifice, Grenade du Chaos, Élan du Chasseur, Vendre des minerais)
  */
 public class ShopGUI implements Listener {
 
@@ -56,6 +55,20 @@ public class ShopGUI implements Listener {
         return smokeBombKey;
     }
 
+    public NamespacedKey getTrackerKey() {
+        return trackerKey;
+    }
+
+    /** Vrai si le joueur possède au moins un Tracker dans son inventaire. */
+    public boolean hasTracker(Player player) {
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if (stack == null || stack.getItemMeta() == null) continue;
+            Byte flag = stack.getItemMeta().getPersistentDataContainer().get(trackerKey, PersistentDataType.BYTE);
+            if (flag != null) return true;
+        }
+        return false;
+    }
+
     public void open(Player player) {
         open(player, 0);
     }
@@ -73,7 +86,7 @@ public class ShopGUI implements Listener {
         }
 
         // Solde du joueur
-        ItemStack balanceItem = new ItemStack(Material.SUNFLOWER);
+        ItemStack balanceItem = new ItemStack(Material.GOLD_INGOT);
         ItemMeta balanceMeta = balanceItem.getItemMeta();
         balanceMeta.displayName(Component.text("§6Ton solde").decoration(TextDecoration.ITALIC, false));
         balanceMeta.lore(List.of(Component.text("§e" + (long) data.getCoins() + " Bounty Coins").decoration(TextDecoration.ITALIC, false)));
@@ -104,35 +117,37 @@ public class ShopGUI implements Listener {
                 "§bKit Diamant", diamondPrice,
                 List.of("§7Armure diamant complète,", "§7épée et pioche en diamant.", "", "§ePrix : " + diamondPrice + " coins")));
 
-        boolean netheriteOwned = data.hasPurchased("netherite_kit");
         inv.setItem(16, buildShopItem(Material.NETHERITE_CHESTPLATE, "netherite_kit",
-                netheriteOwned ? "§8Kit Netherite (déjà acheté)" : "§4Kit Netherite", netheritePrice,
-                netheriteOwned
-                        ? List.of("§8Achat unique déjà utilisé.")
-                        : List.of("§7Armure netherite complète,", "§7épée, hache et pommes dorées enchantées.",
-                        "§c⚠ Achat unique ! Très cher.", "", "§ePrix : " + netheritePrice + " coins")));
+                "§4Kit Netherite", netheritePrice,
+                List.of("§7Armure netherite complète,", "§7épée, hache et pommes dorées enchantées.",
+                        "", "§ePrix : " + netheritePrice + " coins")));
     }
 
     private void populateItemsPage(Inventory inv, PlayerData data) {
         int trackerPrice = plugin.getConfig().getInt("shop.tracker-price", 50);
         int smokePrice = plugin.getConfig().getInt("shop.smoke-bomb-price", 80);
-        int bladePrice = plugin.getConfig().getInt("shop.executioner-blade-price", 2500);
+        int chaosPrice = plugin.getConfig().getInt("shop.chaos-grenade-price", 120);
+        int dashPrice = plugin.getConfig().getInt("shop.dash-item-price", 100);
 
         inv.setItem(10, buildShopItem(Material.COMPASS, "tracker",
                 "§6Tracker", trackerPrice,
                 List.of("§7Clic droit + Maj : choisir une cible", "§7Clic droit : coordonnées approximatives",
-                        "§7(imprécises, avec cooldown).", "", "§ePrix : " + trackerPrice + " coins")));
+                        "§7(imprécises, cooldown façon perle d'ender).", "", "§ePrix : " + trackerPrice + " coins")));
 
-        inv.setItem(12, buildShopItem(Material.FIREWORK_ROCKET, "smoke_bomb",
+        inv.setItem(11, buildShopItem(Material.FIREWORK_ROCKET, "smoke_bomb",
                 "§bFeu d'Artifice du Fugitif", smokePrice,
-                List.of("§7Clic droit : invisibilité et vitesse", "§7temporaires pour semer tes chasseurs.",
+                List.of("§7Clic droit : invisibilité et vitesse", "§710s, aveugle les joueurs proches 2s.",
                         "", "§ePrix : " + smokePrice + " coins")));
 
-        inv.setItem(14, buildShopItem(Material.NETHERITE_SWORD, "executioner_blade",
-                "§4§lLame du Bourreau", bladePrice,
-                List.of("§7Une lame surenchantée pour", "§7les chasseurs les plus riches.",
-                        "§7Tranchant V, Butin III,", "§7Aspect du Feu II, Solidité III.",
-                        "", "§ePrix : " + bladePrice + " coins")));
+        inv.setItem(13, buildShopItem(Material.SNOWBALL, "chaos_grenade",
+                "§dGrenade du Chaos", chaosPrice,
+                List.of("§7Clic droit : lance une grenade qui", "§7applique un effet négatif aléatoire",
+                        "§7au joueur touché.", "", "§ePrix : " + chaosPrice + " coins")));
+
+        inv.setItem(15, buildShopItem(Material.FEATHER, "dash_item",
+                "§bÉlan du Chasseur", dashPrice,
+                List.of("§7Clic droit : propulsion rapide", "§7en avant, sans dégâts de chute.",
+                        "", "§ePrix : " + dashPrice + " coins")));
 
         int diamondRate = plugin.getConfig().getInt("ore-exchange.diamond-rate", 5);
         int emeraldRate = plugin.getConfig().getInt("ore-exchange.emerald-rate", 2);
@@ -197,16 +212,17 @@ public class ShopGUI implements Listener {
         int purchaseSlot = event.getSlot();
 
         switch (id) {
-            case "iron_kit" -> purchase(player, data, "shop.iron-kit-price", 120, null, this::giveIronKit, purchaseSlot);
-            case "diamond_kit" -> purchase(player, data, "shop.diamond-kit-price", 400, null, this::giveDiamondKit, purchaseSlot);
-            case "netherite_kit" -> purchase(player, data, "shop.netherite-kit-price", 1500, "netherite_kit", this::giveNetheriteKit, purchaseSlot);
-            case "tracker" -> purchase(player, data, "shop.tracker-price", 50, null, this::giveTracker, purchaseSlot);
-            case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 80, null, this::giveSmokeBomb, purchaseSlot);
-            case "executioner_blade" -> purchase(player, data, "shop.executioner-blade-price", 2500, null, this::giveExecutionerBlade, purchaseSlot);
+            case "iron_kit" -> purchase(player, data, "shop.iron-kit-price", 120, this::giveIronKit, purchaseSlot);
+            case "diamond_kit" -> purchase(player, data, "shop.diamond-kit-price", 400, this::giveDiamondKit, purchaseSlot);
+            case "netherite_kit" -> purchase(player, data, "shop.netherite-kit-price", 1500, this::giveNetheriteKit, purchaseSlot);
+            case "tracker" -> purchase(player, data, "shop.tracker-price", 50, this::giveTracker, purchaseSlot);
+            case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 80, this::giveSmokeBomb, purchaseSlot);
+            case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 120, this::giveChaosGrenade, purchaseSlot);
+            case "dash_item" -> purchase(player, data, "shop.dash-item-price", 100, this::giveDashItem, purchaseSlot);
             case "sell_ores" -> sellOres(player, data);
         }
 
-        // Rafraîchit l'affichage au tick suivant (solde à jour, kit peut-être marqué "déjà acheté")
+        // Rafraîchit l'affichage au tick suivant (solde à jour)
         Bukkit.getScheduler().runTask(plugin, () -> open(player, holder.page));
     }
 
@@ -214,30 +230,20 @@ public class ShopGUI implements Listener {
         void give(Player player);
     }
 
-    /**
-     * @param oneTimeId si non-null, l'objet ne peut être acheté qu'une seule fois par joueur.
-     */
-    private void purchase(Player player, PlayerData data, String configPath, int defaultPrice, String oneTimeId, Rewarder rewarder, int slot) {
-        if (oneTimeId != null && data.hasPurchased(oneTimeId)) {
-            player.sendMessage(Component.text("Tu as déjà acheté cet objet, il n'est disponible qu'une seule fois.", NamedTextColor.RED));
-            return;
-        }
+    private void purchase(Player player, PlayerData data, String configPath, int defaultPrice, Rewarder rewarder, int slot) {
         int price = plugin.getConfig().getInt(configPath, defaultPrice);
         if (data.getCoins() < price) {
             player.sendMessage(Component.text("Tu n'as pas assez de Bounty Coins (" + (long) data.getCoins() + "/" + price + ").", NamedTextColor.RED));
             return;
         }
         data.addCoins(-price);
-        if (oneTimeId != null) {
-            data.getOneTimePurchases().add(oneTimeId);
-        }
         rewarder.give(player);
         player.sendMessage(Component.text("Achat effectué pour " + price + " coins !", NamedTextColor.GREEN));
-        playPurchaseAnimation(player, slot);
+        playPurchaseAnimation(player);
     }
 
     /** Petite animation/feedback visuel + sonore à l'achat. */
-    private void playPurchaseAnimation(Player player, int slot) {
+    private void playPurchaseAnimation(Player player) {
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         player.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, player.getEyeLocation(), 12, 0.3, 0.3, 0.3, 0);
     }
@@ -333,17 +339,28 @@ public class ShopGUI implements Listener {
         giveItems(player, item);
     }
 
-    private void giveExecutionerBlade(Player player) {
-        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
-        ItemMeta meta = sword.getItemMeta();
-        meta.displayName(Component.text("§4§lLame du Bourreau").decoration(TextDecoration.ITALIC, false));
-        meta.addEnchant(Enchantment.SHARPNESS, 5, true);
-        meta.addEnchant(Enchantment.LOOTING, 3, true);
-        meta.addEnchant(Enchantment.FIRE_ASPECT, 2, true);
-        meta.addEnchant(Enchantment.UNBREAKING, 3, true);
-        meta.addEnchant(Enchantment.MENDING, 1, true);
-        sword.setItemMeta(meta);
-        giveItems(player, sword);
+    private void giveChaosGrenade(Player player) {
+        NamespacedKey chaosKey = new NamespacedKey(plugin, "bounty_chaos_grenade");
+        ItemStack item = new ItemStack(Material.SNOWBALL);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§dGrenade du Chaos").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : lance un effet négatif").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7aléatoire sur le joueur touché.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(chaosKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveDashItem(Player player) {
+        NamespacedKey dashKey = new NamespacedKey(plugin, "bounty_dash_item");
+        ItemStack item = new ItemStack(Material.FEATHER);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§bÉlan du Chasseur").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : propulsion rapide").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7en avant, sans dégâts de chute.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(dashKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
     }
 
     private void giveIronKit(Player player) {

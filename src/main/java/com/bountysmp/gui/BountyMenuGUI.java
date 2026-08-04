@@ -45,6 +45,9 @@ public class BountyMenuGUI implements Listener {
 
         ItemStack profile = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta profileMeta = profile.getItemMeta();
+        if (profileMeta instanceof org.bukkit.inventory.meta.SkullMeta skullMeta) {
+            skullMeta.setOwningPlayer(player);
+        }
         profileMeta.displayName(Component.text("§6Ton profil").decoration(TextDecoration.ITALIC, false));
         profileMeta.lore(List.of(
                 Component.text("§7Coins : §e" + (long) data.getCoins()).decoration(TextDecoration.ITALIC, false),

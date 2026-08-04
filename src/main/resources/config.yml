@@ -29,7 +29,8 @@ shop:
   diamond-kit-price: 400
   netherite-kit-price: 1500
   smoke-bomb-price: 80
-  executioner-blade-price: 2500
+  chaos-grenade-price: 120
+  dash-item-price: 100
 
 # Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
 ore-exchange:
@@ -38,7 +39,7 @@ ore-exchange:
   netherite-ingot-rate: 30
   daily-limit: 3
 
-# Objet Tracker : cooldown entre deux localisations et imprécision des coordonnées
+# Objet Tracker : cooldown (façon perle d'ender) et imprécision des coordonnées
 tracker:
   cooldown-seconds: 30
   imprecision-blocks: 40
@@ -46,4 +47,8 @@ tracker:
 # Fumigène du Fugitif : rayon (en blocs) dans lequel les joueurs proches sont aveuglés
 smoke-bomb:
   blind-radius: 6.0
+
+# Élan du Chasseur : force de la propulsion
+dash-item:
+  strength: 2.2
 

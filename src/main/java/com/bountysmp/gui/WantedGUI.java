@@ -102,6 +102,11 @@ public class WantedGUI implements Listener {
         if (meta.getOwningPlayer() == null) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
+        if (!plugin.getShopGUI().hasTracker(player)) {
+            player.sendMessage(Component.text("Tu as besoin d'un Tracker pour cibler un joueur (achète-le en boutique).", NamedTextColor.RED));
+            return;
+        }
+
         UUID targetUuid = meta.getOwningPlayer().getUniqueId();
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         data.setTrackerTarget(targetUuid);
