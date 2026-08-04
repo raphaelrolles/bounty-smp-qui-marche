@@ -43,6 +43,10 @@ public class PlayerData {
     // Timestamp (ms) jusqu'auquel le tracker est en cooldown
     private long trackerCooldownUntil = 0L;
 
+    // Limite quotidienne d'échanges de minerais contre des coins
+    private int oreExchangesToday = 0;
+    private long oreExchangeEpochDay = -1L;
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -135,5 +139,21 @@ public class PlayerData {
 
     public void setTrackerCooldownUntil(long trackerCooldownUntil) {
         this.trackerCooldownUntil = trackerCooldownUntil;
+    }
+
+    public int getOreExchangesToday() {
+        return oreExchangesToday;
+    }
+
+    public void setOreExchangesToday(int value) {
+        this.oreExchangesToday = value;
+    }
+
+    public long getOreExchangeEpochDay() {
+        return oreExchangeEpochDay;
+    }
+
+    public void setOreExchangeEpochDay(long value) {
+        this.oreExchangeEpochDay = value;
     }
 }

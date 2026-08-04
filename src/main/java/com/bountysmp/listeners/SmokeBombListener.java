@@ -47,6 +47,14 @@ public class SmokeBombListener implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 10, 0));
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1));
 
+        // Aveugle brièvement les joueurs proches (les chasseurs à ta poursuite) pour faciliter la fuite
+        double radius = plugin.getConfig().getDouble("smoke-bomb.blind-radius", 6.0);
+        for (org.bukkit.entity.Entity nearby : player.getNearbyEntities(radius, radius, radius)) {
+            if (nearby instanceof Player otherPlayer) {
+                otherPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 2, 0));
+            }
+        }
+
         player.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, player.getLocation().add(0, 1, 0), 40, 0.5, 1, 0.5, 0.02);
 
         if (item.getAmount() > 1) {

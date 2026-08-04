@@ -86,6 +86,8 @@ public class DataManager {
                     }
                 }
                 data.setTrackerCooldownUntil(s.getLong("trackerCooldownUntil", 0));
+                data.setOreExchangesToday(s.getInt("oreExchangesToday", 0));
+                data.setOreExchangeEpochDay(s.getLong("oreExchangeEpochDay", -1L));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -118,6 +120,8 @@ public class DataManager {
                 yaml.set(path + ".trackerTarget", data.getTrackerTarget().toString());
             }
             yaml.set(path + ".trackerCooldownUntil", data.getTrackerCooldownUntil());
+            yaml.set(path + ".oreExchangesToday", data.getOreExchangesToday());
+            yaml.set(path + ".oreExchangeEpochDay", data.getOreExchangeEpochDay());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

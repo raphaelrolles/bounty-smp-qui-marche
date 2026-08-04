@@ -1,7 +1,6 @@
 package com.bountysmp;
 
 import com.bountysmp.commands.BountyCommand;
-import com.bountysmp.commands.WantedCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.ShopGUI;
@@ -37,7 +36,6 @@ public final class BountySMP extends JavaPlugin {
         BountyCommand bountyCommand = new BountyCommand(this);
         getCommand("bounty").setExecutor(bountyCommand);
         getCommand("bounty").setTabCompleter(bountyCommand);
-        getCommand("wanted").setExecutor(new WantedCommand(this));
 
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);

@@ -41,15 +41,20 @@ public class WantedGUI implements Listener {
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(new WantedHolder(), 27, Component.text("Recherchés (WANTED)", NamedTextColor.DARK_RED));
 
-        List<PlayerData> top = plugin.getDataManager().topBounties(9);
+        List<PlayerData> candidates = plugin.getDataManager().topBounties(50);
         long windowSeconds = plugin.getConfig().getLong("danger.window-seconds", 600);
         long now = System.currentTimeMillis();
 
         int slot = 10;
-        for (PlayerData data : top) {
-            if (slot > 16) break;
+        int shown = 0;
+        for (PlayerData data : candidates) {
+            if (shown >= 7) break;
             OfflinePlayer op = Bukkit.getOfflinePlayer(data.getUuid());
-            String name = op.getName() != null ? op.getName() : "?";
+            // Ignore les entrées "fantômes" (joueur inexistant ou jamais connecté au serveur)
+            if (op.getName() == null || !op.hasPlayedBefore()) {
+                continue;
+            }
+            String name = op.getName();
 
             long recentKills = data.getRecentKillTimestamps().stream()
                     .filter(t -> (now - t) <= windowSeconds * 1000L)
@@ -68,9 +73,10 @@ public class WantedGUI implements Listener {
             head.setItemMeta(meta);
             inv.setItem(slot, head);
             slot++;
+            shown++;
         }
 
-        if (top.isEmpty()) {
+        if (shown == 0) {
             ItemStack empty = new ItemStack(Material.BARRIER);
             ItemMeta meta = empty.getItemMeta();
             meta.displayName(Component.text("§7Aucun joueur recherché pour le moment").decoration(TextDecoration.ITALIC, false));

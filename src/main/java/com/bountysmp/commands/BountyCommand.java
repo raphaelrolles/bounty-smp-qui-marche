@@ -27,7 +27,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        // /bounty  -> ouvre le menu graphique (profil + raccourcis)
+        // /bounty  -> ouvre le menu graphique (profil + raccourcis vers boutique et recherchés)
         if (args.length == 0) {
             if (!(sender instanceof Player player)) {
                 sender.sendMessage("Cette commande doit être utilisée en jeu.");
@@ -40,24 +40,23 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         String sub = args[0].toLowerCase();
 
         switch (sub) {
-            case "set" -> handleSet(sender, args);
-            case "shop" -> handleShop(sender);
+            case "add" -> handleAdd(sender, args);
             case "top" -> handleTop(sender);
             case "addcoins" -> handleAdminCoins(sender, args, true);
             case "removecoins" -> handleAdminCoins(sender, args, false);
             case "setadmin" -> handleSetAdmin(sender, args);
-            default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty, /bounty set <joueur> <montant>, /bounty shop, /bounty top.", NamedTextColor.RED));
+            default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty, /bounty add <joueur> <montant>, /bounty top.", NamedTextColor.RED));
         }
         return true;
     }
 
-    private void handleSet(CommandSender sender, String[] args) {
+    private void handleAdd(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Cette commande doit être utilisée en jeu.");
             return;
         }
         if (args.length < 3) {
-            player.sendMessage(Component.text("Usage : /bounty set <joueur> <montant>", NamedTextColor.RED));
+            player.sendMessage(Component.text("Usage : /bounty add <joueur> <montant>", NamedTextColor.RED));
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
@@ -94,14 +93,6 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text(" est maintenant recherché ! Prime totale : ", NamedTextColor.GRAY))
                 .append(Component.text((long) targetData.getBounty() + " coins", NamedTextColor.YELLOW))
                 .append(Component.text(" (contrat de " + player.getName() + ")", NamedTextColor.DARK_GRAY)));
-    }
-
-    private void handleShop(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("Cette commande doit être utilisée en jeu.");
-            return;
-        }
-        plugin.getShopGUI().open(player);
     }
 
     private void handleTop(CommandSender sender) {
@@ -172,14 +163,14 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> subs = new ArrayList<>(List.of("set", "shop", "top"));
+        List<String> subs = new ArrayList<>(List.of("add", "top"));
         if (sender.hasPermission("bountysmp.admin")) {
             subs.addAll(List.of("addcoins", "removecoins", "setadmin"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
-        if (args.length == 2 && List.of("set", "addcoins", "removecoins", "setadmin").contains(args[0].toLowerCase())) {
+        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "setadmin").contains(args[0].toLowerCase())) {
             return Bukkit.getOnlinePlayers().stream().map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
         }
