@@ -96,20 +96,11 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleTop(CommandSender sender) {
-        List<PlayerData> hunters = plugin.getDataManager().topHunters(10);
-        sender.sendMessage(Component.text("===== TOP CHASSEURS =====", NamedTextColor.GOLD));
-        if (hunters.isEmpty()) {
-            sender.sendMessage(Component.text("Personne n'a encore récupéré de prime.", NamedTextColor.GRAY));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
             return;
         }
-        int rank = 1;
-        for (PlayerData data : hunters) {
-            OfflinePlayer op = Bukkit.getOfflinePlayer(data.getUuid());
-            sender.sendMessage(Component.text(rank + ". ", NamedTextColor.GRAY)
-                    .append(Component.text(op.getName() != null ? op.getName() : "?", NamedTextColor.AQUA))
-                    .append(Component.text(" - " + data.getBountiesClaimed() + " primes récupérées", NamedTextColor.GRAY)));
-            rank++;
-        }
+        plugin.getTopGUI().open(player);
     }
 
     private void handleAdminCoins(CommandSender sender, String[] args, boolean add) {

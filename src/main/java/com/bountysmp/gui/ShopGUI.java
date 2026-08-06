@@ -100,6 +100,7 @@ public class ShopGUI implements Listener {
         if (page < TOTAL_PAGES - 1) {
             inv.setItem(26, buildNavItem(Material.ARROW, "§7Page suivante »", "nav_next"));
         }
+        inv.setItem(22, buildNavItem(Material.BARRIER, "§7« Retour au menu", "back_menu"));
 
         player.openInventory(inv);
     }
@@ -128,6 +129,7 @@ public class ShopGUI implements Listener {
         int smokePrice = plugin.getConfig().getInt("shop.smoke-bomb-price", 80);
         int chaosPrice = plugin.getConfig().getInt("shop.chaos-grenade-price", 120);
         int dashPrice = plugin.getConfig().getInt("shop.dash-item-price", 100);
+        int ragePrice = plugin.getConfig().getInt("shop.rage-vial-price", 90);
 
         inv.setItem(10, buildShopItem(Material.COMPASS, "tracker",
                 "§6Tracker", trackerPrice,
@@ -138,6 +140,11 @@ public class ShopGUI implements Listener {
                 "§bFeu d'Artifice du Fugitif", smokePrice,
                 List.of("§7Clic droit : invisibilité et vitesse", "§710s, aveugle les joueurs proches 2s.",
                         "", "§ePrix : " + smokePrice + " coins")));
+
+        inv.setItem(12, buildShopItem(Material.GLOWSTONE_DUST, "rage_vial",
+                "§6Fiole de Rage", ragePrice,
+                List.of("§7Clic droit : Force et Résistance au feu", "§7pendant 15 secondes.",
+                        "", "§ePrix : " + ragePrice + " coins")));
 
         inv.setItem(13, buildShopItem(Material.SNOWBALL, "chaos_grenade",
                 "§dGrenade du Chaos", chaosPrice,
@@ -207,6 +214,10 @@ public class ShopGUI implements Listener {
             open(player, holder.page + 1);
             return;
         }
+        if (id.equals("back_menu")) {
+            plugin.getBountyMenuGUI().open(player);
+            return;
+        }
 
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         int purchaseSlot = event.getSlot();
@@ -219,6 +230,7 @@ public class ShopGUI implements Listener {
             case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 80, this::giveSmokeBomb, purchaseSlot);
             case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 120, this::giveChaosGrenade, purchaseSlot);
             case "dash_item" -> purchase(player, data, "shop.dash-item-price", 100, this::giveDashItem, purchaseSlot);
+            case "rage_vial" -> purchase(player, data, "shop.rage-vial-price", 90, this::giveRageVial, purchaseSlot);
             case "sell_ores" -> sellOres(player, data);
         }
 
@@ -347,6 +359,18 @@ public class ShopGUI implements Listener {
         meta.lore(List.of(Component.text("§7Clic droit : lance un effet négatif").decoration(TextDecoration.ITALIC, false),
                 Component.text("§7aléatoire sur le joueur touché.").decoration(TextDecoration.ITALIC, false)));
         meta.getPersistentDataContainer().set(chaosKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveRageVial(Player player) {
+        NamespacedKey rageKey = new NamespacedKey(plugin, "bounty_rage_vial");
+        ItemStack item = new ItemStack(Material.GLOWSTONE_DUST);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§6Fiole de Rage").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : Force et Résistance").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7au feu pendant 15 secondes.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(rageKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         giveItems(player, item);
     }

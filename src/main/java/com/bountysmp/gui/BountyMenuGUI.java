@@ -55,10 +55,13 @@ public class BountyMenuGUI implements Listener {
                 Component.text("§7Primes récupérées : §a" + data.getBountiesClaimed()).decoration(TextDecoration.ITALIC, false)
         ));
         profile.setItemMeta(profileMeta);
-        inv.setItem(13, profile);
+        inv.setItem(4, profile);
 
         inv.setItem(11, buildActionItem(Material.CHEST, "§aOuvrir la Boutique", "open_shop",
                 List.of("§7Dépense tes coins.")));
+
+        inv.setItem(13, buildActionItem(Material.GOLDEN_HELMET, "§6Top Chasseurs", "open_top",
+                List.of("§7Classement des meilleurs.")));
 
         inv.setItem(15, buildActionItem(Material.SKELETON_SKULL, "§cVoir les Recherchés", "open_wanted",
                 List.of("§7Liste des joueurs traqués.")));
@@ -92,6 +95,7 @@ public class BountyMenuGUI implements Listener {
 
         switch (id) {
             case "open_shop" -> plugin.getShopGUI().open(player);
+            case "open_top" -> plugin.getTopGUI().open(player);
             case "open_wanted" -> plugin.getWantedGUI().open(player);
         }
     }

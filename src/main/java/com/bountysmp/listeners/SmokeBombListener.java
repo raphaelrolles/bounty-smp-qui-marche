@@ -3,6 +3,7 @@ package com.bountysmp.listeners;
 import com.bountysmp.BountySMP;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,6 +44,13 @@ public class SmokeBombListener implements Listener {
 
         event.setCancelled(true);
         Player player = event.getPlayer();
+
+        if (player.hasCooldown(org.bukkit.Material.FIREWORK_ROCKET)) {
+            player.sendMessage(Component.text("Le Feu d'Artifice recharge encore...", NamedTextColor.GRAY));
+            return;
+        }
+        int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.smoke-bomb-seconds", 25);
+        player.setCooldown(Material.FIREWORK_ROCKET, cooldownSeconds * 20);
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 10, 0));
         player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1));

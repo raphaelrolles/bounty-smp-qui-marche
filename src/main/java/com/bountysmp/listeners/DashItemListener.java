@@ -3,6 +3,7 @@ package com.bountysmp.listeners;
 import com.bountysmp.BountySMP;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -50,6 +51,13 @@ public class DashItemListener implements Listener {
 
         event.setCancelled(true);
         Player player = event.getPlayer();
+
+        if (player.hasCooldown(Material.FEATHER)) {
+            player.sendMessage(Component.text("L'Élan du Chasseur recharge encore...", NamedTextColor.GRAY));
+            return;
+        }
+        int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.dash-item-seconds", 20);
+        player.setCooldown(Material.FEATHER, cooldownSeconds * 20);
 
         double strength = plugin.getConfig().getDouble("dash-item.strength", 2.2);
         Vector direction = player.getLocation().getDirection().normalize().multiply(strength);

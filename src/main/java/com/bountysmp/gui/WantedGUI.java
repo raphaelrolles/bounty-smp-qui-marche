@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,13 +18,14 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
  * Menu graphique pour /wanted : affiche les joueurs recherchés sous forme de têtes.
- * Cliquer sur une tête désigne ce joueur comme cible du Tracker.
+ * Cliquer sur une tête désigne ce joueur comme cible du Tracker (nécessite d'en posséder un).
  */
 public class WantedGUI implements Listener {
 
@@ -33,9 +35,11 @@ public class WantedGUI implements Listener {
     }
 
     private final BountySMP plugin;
+    private final NamespacedKey actionKey;
 
     public WantedGUI(BountySMP plugin) {
         this.plugin = plugin;
+        this.actionKey = new NamespacedKey(plugin, "bounty_wanted_action");
     }
 
     public void open(Player player) {
@@ -84,6 +88,13 @@ public class WantedGUI implements Listener {
             inv.setItem(13, empty);
         }
 
+        ItemStack back = new ItemStack(Material.ARROW);
+        ItemMeta backMeta = back.getItemMeta();
+        backMeta.displayName(Component.text("§7« Retour au menu").decoration(TextDecoration.ITALIC, false));
+        backMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "back");
+        back.setItemMeta(backMeta);
+        inv.setItem(22, back);
+
         player.openInventory(inv);
     }
 
@@ -96,11 +107,21 @@ public class WantedGUI implements Listener {
             return;
         }
         ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType() != Material.PLAYER_HEAD || !(clicked.getItemMeta() instanceof SkullMeta meta)) {
+        if (clicked == null || clicked.getItemMeta() == null) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        // Bouton retour
+        String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
+        if ("back".equals(action)) {
+            plugin.getBountyMenuGUI().open(player);
+            return;
+        }
+
+        // Clic sur une tête de joueur recherché
+        if (clicked.getType() != Material.PLAYER_HEAD || !(clicked.getItemMeta() instanceof SkullMeta meta)) {
             return;
         }
         if (meta.getOwningPlayer() == null) return;
-        if (!(event.getWhoClicked() instanceof Player player)) return;
 
         if (!plugin.getShopGUI().hasTracker(player)) {
             player.sendMessage(Component.text("Tu as besoin d'un Tracker pour cibler un joueur (achète-le en boutique).", NamedTextColor.RED));

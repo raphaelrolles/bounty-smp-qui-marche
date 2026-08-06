@@ -31,6 +31,14 @@ shop:
   smoke-bomb-price: 80
   chaos-grenade-price: 120
   dash-item-price: 100
+  rage-vial-price: 90
+
+# Cooldowns des objets (façon perle d'ender), en secondes
+item-cooldowns:
+  smoke-bomb-seconds: 25
+  dash-item-seconds: 20
+  chaos-grenade-seconds: 20
+  rage-vial-seconds: 25
 
 # Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
 ore-exchange:

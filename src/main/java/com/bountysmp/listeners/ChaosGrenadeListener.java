@@ -3,6 +3,7 @@ package com.bountysmp.listeners;
 import com.bountysmp.BountySMP;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -64,6 +65,13 @@ public class ChaosGrenadeListener implements Listener {
 
         event.setCancelled(true);
         Player player = event.getPlayer();
+
+        if (player.hasCooldown(Material.SNOWBALL)) {
+            player.sendMessage(Component.text("La Grenade du Chaos recharge encore...", NamedTextColor.GRAY));
+            return;
+        }
+        int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.chaos-grenade-seconds", 20);
+        player.setCooldown(Material.SNOWBALL, cooldownSeconds * 20);
 
         Snowball snowball = player.launchProjectile(Snowball.class, player.getLocation().getDirection().multiply(1.4));
         snowball.setMetadata(METADATA_KEY, new FixedMetadataValue(plugin, true));
