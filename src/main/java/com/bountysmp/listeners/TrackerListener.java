@@ -83,9 +83,14 @@ public class TrackerListener implements Listener {
         int imprecision = plugin.getConfig().getInt("tracker.imprecision-blocks", 40);
         player.setCooldown(Material.COMPASS, cooldownSeconds * 20);
 
+        // Si la cible a bu un Élixir du Menteur, le signal est complètement brouillé
+        PlayerData targetData = plugin.getDataManager().get(targetUuid);
+        boolean decoyActive = System.currentTimeMillis() < targetData.getDecoyUntil();
+        int effectiveImprecision = decoyActive ? imprecision * 15 : imprecision;
+
         Location loc = onlineTarget.getLocation();
-        int jitterX = ThreadLocalRandom.current().nextInt(-imprecision, imprecision + 1);
-        int jitterZ = ThreadLocalRandom.current().nextInt(-imprecision, imprecision + 1);
+        int jitterX = ThreadLocalRandom.current().nextInt(-effectiveImprecision, effectiveImprecision + 1);
+        int jitterZ = ThreadLocalRandom.current().nextInt(-effectiveImprecision, effectiveImprecision + 1);
         int approxX = (int) (Math.round((loc.getX() + jitterX) / 10.0) * 10);
         int approxZ = (int) (Math.round((loc.getZ() + jitterZ) / 10.0) * 10);
 

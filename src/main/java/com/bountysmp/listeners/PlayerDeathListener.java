@@ -43,6 +43,11 @@ public class PlayerDeathListener implements Listener {
             killerData.incrementBountiesClaimed();
             victimData.clearBounty();
 
+            if (!killerData.isFirstBountyAchievement()) {
+                killerData.setFirstBountyAchievement(true);
+                com.bountysmp.util.AchievementUtil.show(killer, "Première Prime", "Tu as encaissé ta première prime !");
+            }
+
             Bukkit.broadcast(Component.text("☠ ", NamedTextColor.DARK_RED)
                     .append(Component.text(killer.getName(), NamedTextColor.GOLD))
                     .append(Component.text(" a éliminé le joueur recherché ", NamedTextColor.GRAY))

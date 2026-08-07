@@ -25,11 +25,12 @@ import java.util.List;
 /**
  * Boutique Bounty : /bounty shop
  * Page 0 = Kits (Kit Fer, Kit Diamant, Kit Netherite)
- * Page 1 = Objets (Tracker, Feu d'artifice, Grenade du Chaos, Élan du Chasseur, Vendre des minerais)
+ * Page 1 = Objets (Tracker, Feu d'artifice, Fiole de Rage, Grenade du Chaos, Élan du Chasseur, Vendre des minerais)
+ * Page 2 = Marché Noir (Faux Lingot d'Or, Élixir du Menteur)
  */
 public class ShopGUI implements Listener {
 
-    private static final int TOTAL_PAGES = 2;
+    private static final int TOTAL_PAGES = 3;
 
     /** Marqueur d'identité fiable pour l'inventaire boutique, contient la page affichée. */
     private static class ShopHolder implements InventoryHolder {
@@ -76,13 +77,19 @@ public class ShopGUI implements Listener {
     public void open(Player player, int page) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
 
-        String title = page == 0 ? "Boutique - Kits" : "Boutique - Objets";
+        String title = switch (page) {
+            case 0 -> "Boutique - Kits";
+            case 1 -> "Boutique - Objets";
+            default -> "Boutique - Marché Noir";
+        };
         Inventory inv = Bukkit.createInventory(new ShopHolder(page), 27, Component.text(title, NamedTextColor.DARK_RED));
 
         if (page == 0) {
             populateKitsPage(inv, data);
-        } else {
+        } else if (page == 1) {
             populateItemsPage(inv, data);
+        } else {
+            populateBlackMarketPage(inv, data);
         }
 
         // Solde du joueur
@@ -141,7 +148,7 @@ public class ShopGUI implements Listener {
                 List.of("§7Clic droit : invisibilité et vitesse", "§710s, aveugle les joueurs proches 2s.",
                         "", "§ePrix : " + smokePrice + " coins")));
 
-        inv.setItem(12, buildShopItem(Material.GLOWSTONE_DUST, "rage_vial",
+        inv.setItem(12, buildShopItem(Material.POTION, "rage_vial",
                 "§6Fiole de Rage", ragePrice,
                 List.of("§7Clic droit : Force et Résistance au feu", "§7pendant 15 secondes.",
                         "", "§ePrix : " + ragePrice + " coins")));
@@ -169,6 +176,22 @@ public class ShopGUI implements Listener {
                         "§71 lingot de netherite = " + netheriteRate + " coins",
                         "", "§7Utilisations aujourd'hui : §f" + usedToday + "/" + dailyLimit));
         inv.setItem(16, sellItem);
+    }
+
+    private void populateBlackMarketPage(Inventory inv, PlayerData data) {
+        int ingotPrice = plugin.getConfig().getInt("shop.fake-ingot-price", 60);
+        int elixirPrice = plugin.getConfig().getInt("shop.decoy-elixir-price", 200);
+        int elixirDuration = plugin.getConfig().getInt("decoy-elixir.duration-seconds", 60);
+
+        inv.setItem(11, buildShopItem(Material.GOLD_NUGGET, "fake_ingot",
+                "§6Faux Lingot d'Or", ingotPrice,
+                List.of("§7Laisse-le traîner au sol :", "§7quiconque le ramasse (sauf toi)",
+                        "§7est maudit (lenteur + faiblesse).", "", "§ePrix : " + ingotPrice + " coins")));
+
+        inv.setItem(15, buildShopItem(Material.HONEY_BOTTLE, "decoy_elixir",
+                "§5Élixir du Menteur", elixirPrice,
+                List.of("§7Clic droit : brouille pendant " + elixirDuration + "s", "§7les signaux de tout Tracker",
+                        "§7pointé sur toi.", "", "§ePrix : " + elixirPrice + " coins")));
     }
 
     private ItemStack buildShopItem(Material material, String id, String name, int price, List<String> lore) {
@@ -231,6 +254,8 @@ public class ShopGUI implements Listener {
             case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 120, this::giveChaosGrenade, purchaseSlot);
             case "dash_item" -> purchase(player, data, "shop.dash-item-price", 100, this::giveDashItem, purchaseSlot);
             case "rage_vial" -> purchase(player, data, "shop.rage-vial-price", 90, this::giveRageVial, purchaseSlot);
+            case "fake_ingot" -> purchase(player, data, "shop.fake-ingot-price", 60, this::giveFakeIngot, purchaseSlot);
+            case "decoy_elixir" -> purchase(player, data, "shop.decoy-elixir-price", 200, this::giveDecoyElixir, purchaseSlot);
             case "sell_ores" -> sellOres(player, data);
         }
 
@@ -252,6 +277,11 @@ public class ShopGUI implements Listener {
         rewarder.give(player);
         player.sendMessage(Component.text("Achat effectué pour " + price + " coins !", NamedTextColor.GREEN));
         playPurchaseAnimation(player);
+
+        if (!data.isFirstPurchaseAchievement()) {
+            data.setFirstPurchaseAchievement(true);
+            com.bountysmp.util.AchievementUtil.show(player, "Premier Achat", "Tu as fait tes premières emplettes en Bounty Coins.");
+        }
     }
 
     /** Petite animation/feedback visuel + sonore à l'achat. */
@@ -365,12 +395,38 @@ public class ShopGUI implements Listener {
 
     private void giveRageVial(Player player) {
         NamespacedKey rageKey = new NamespacedKey(plugin, "bounty_rage_vial");
-        ItemStack item = new ItemStack(Material.GLOWSTONE_DUST);
+        ItemStack item = new ItemStack(Material.POTION);
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Component.text("§6Fiole de Rage").decoration(TextDecoration.ITALIC, false));
         meta.lore(List.of(Component.text("§7Clic droit : Force et Résistance").decoration(TextDecoration.ITALIC, false),
                 Component.text("§7au feu pendant 15 secondes.").decoration(TextDecoration.ITALIC, false)));
         meta.getPersistentDataContainer().set(rageKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveFakeIngot(Player player) {
+        NamespacedKey fakeIngotKey = new NamespacedKey(plugin, "bounty_fake_ingot");
+        NamespacedKey ownerKey = new NamespacedKey(plugin, "bounty_fake_ingot_owner");
+        ItemStack item = new ItemStack(Material.GOLD_NUGGET);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§6Faux Lingot d'Or").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Laisse-le traîner : quiconque le").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7ramasse (sauf toi) est maudit.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(fakeIngotKey, PersistentDataType.BYTE, (byte) 1);
+        meta.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveDecoyElixir(Player player) {
+        NamespacedKey decoyKey = new NamespacedKey(plugin, "bounty_decoy_elixir");
+        ItemStack item = new ItemStack(Material.HONEY_BOTTLE);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§5Élixir du Menteur").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : brouille les Trackers").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7pointés sur toi pendant un moment.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(decoyKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         giveItems(player, item);
     }

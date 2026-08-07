@@ -88,7 +88,7 @@ public class WantedGUI implements Listener {
             inv.setItem(13, empty);
         }
 
-        ItemStack back = new ItemStack(Material.ARROW);
+        ItemStack back = new ItemStack(Material.BARRIER);
         ItemMeta backMeta = back.getItemMeta();
         backMeta.displayName(Component.text("§7« Retour au menu").decoration(TextDecoration.ITALIC, false));
         backMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "back");

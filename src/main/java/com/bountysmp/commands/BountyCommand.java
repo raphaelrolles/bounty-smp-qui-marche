@@ -41,11 +41,10 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
         switch (sub) {
             case "add" -> handleAdd(sender, args);
-            case "top" -> handleTop(sender);
             case "addcoins" -> handleAdminCoins(sender, args, true);
             case "removecoins" -> handleAdminCoins(sender, args, false);
             case "setadmin" -> handleSetAdmin(sender, args);
-            default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty, /bounty add <joueur> <montant>, /bounty top.", NamedTextColor.RED));
+            default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
     }
@@ -93,14 +92,6 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
                 .append(Component.text(" est maintenant recherché ! Prime totale : ", NamedTextColor.GRAY))
                 .append(Component.text((long) targetData.getBounty() + " coins", NamedTextColor.YELLOW))
                 .append(Component.text(" (contrat de " + player.getName() + ")", NamedTextColor.DARK_GRAY)));
-    }
-
-    private void handleTop(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
-            return;
-        }
-        plugin.getTopGUI().open(player);
     }
 
     private void handleAdminCoins(CommandSender sender, String[] args, boolean add) {
@@ -154,7 +145,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> subs = new ArrayList<>(List.of("add", "top"));
+        List<String> subs = new ArrayList<>(List.of("add"));
         if (sender.hasPermission("bountysmp.admin")) {
             subs.addAll(List.of("addcoins", "removecoins", "setadmin"));
         }

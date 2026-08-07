@@ -47,6 +47,13 @@ public class PlayerData {
     private int oreExchangesToday = 0;
     private long oreExchangeEpochDay = -1L;
 
+    // Succès personnalisés déjà obtenus
+    private boolean firstPurchaseAchievement = false;
+    private boolean firstBountyAchievement = false;
+
+    // Timestamp (ms) jusqu'auquel les signaux du Tracker sur ce joueur sont brouillés (Élixir du Menteur)
+    private long decoyUntil = 0L;
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -155,5 +162,29 @@ public class PlayerData {
 
     public void setOreExchangeEpochDay(long value) {
         this.oreExchangeEpochDay = value;
+    }
+
+    public boolean isFirstPurchaseAchievement() {
+        return firstPurchaseAchievement;
+    }
+
+    public void setFirstPurchaseAchievement(boolean value) {
+        this.firstPurchaseAchievement = value;
+    }
+
+    public boolean isFirstBountyAchievement() {
+        return firstBountyAchievement;
+    }
+
+    public void setFirstBountyAchievement(boolean value) {
+        this.firstBountyAchievement = value;
+    }
+
+    public long getDecoyUntil() {
+        return decoyUntil;
+    }
+
+    public void setDecoyUntil(long decoyUntil) {
+        this.decoyUntil = decoyUntil;
     }
 }

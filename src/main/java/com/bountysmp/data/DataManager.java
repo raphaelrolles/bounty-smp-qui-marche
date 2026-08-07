@@ -88,6 +88,9 @@ public class DataManager {
                 data.setTrackerCooldownUntil(s.getLong("trackerCooldownUntil", 0));
                 data.setOreExchangesToday(s.getInt("oreExchangesToday", 0));
                 data.setOreExchangeEpochDay(s.getLong("oreExchangeEpochDay", -1L));
+                data.setFirstPurchaseAchievement(s.getBoolean("firstPurchaseAchievement", false));
+                data.setFirstBountyAchievement(s.getBoolean("firstBountyAchievement", false));
+                data.setDecoyUntil(s.getLong("decoyUntil", 0));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -122,6 +125,9 @@ public class DataManager {
             yaml.set(path + ".trackerCooldownUntil", data.getTrackerCooldownUntil());
             yaml.set(path + ".oreExchangesToday", data.getOreExchangesToday());
             yaml.set(path + ".oreExchangeEpochDay", data.getOreExchangeEpochDay());
+            yaml.set(path + ".firstPurchaseAchievement", data.isFirstPurchaseAchievement());
+            yaml.set(path + ".firstBountyAchievement", data.isFirstBountyAchievement());
+            yaml.set(path + ".decoyUntil", data.getDecoyUntil());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

@@ -32,6 +32,8 @@ shop:
   chaos-grenade-price: 120
   dash-item-price: 100
   rage-vial-price: 90
+  fake-ingot-price: 60
+  decoy-elixir-price: 200
 
 # Cooldowns des objets (façon perle d'ender), en secondes
 item-cooldowns:
@@ -39,6 +41,7 @@ item-cooldowns:
   dash-item-seconds: 20
   chaos-grenade-seconds: 20
   rage-vial-seconds: 25
+  decoy-elixir-seconds: 45
 
 # Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
 ore-exchange:
@@ -59,4 +62,8 @@ smoke-bomb:
 # Élan du Chasseur : force de la propulsion
 dash-item:
   strength: 2.2
+
+# Élixir du Menteur : durée du brouillage du Tracker (en secondes)
+decoy-elixir:
+  duration-seconds: 60
 
