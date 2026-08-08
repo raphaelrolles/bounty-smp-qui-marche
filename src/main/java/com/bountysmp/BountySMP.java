@@ -4,14 +4,17 @@ import com.bountysmp.commands.BountyCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.ShopGUI;
+import com.bountysmp.gui.TopGUI;
 import com.bountysmp.gui.WantedGUI;
 import com.bountysmp.listeners.ChaosGrenadeListener;
 import com.bountysmp.listeners.DashItemListener;
 import com.bountysmp.listeners.DecoyElixirListener;
 import com.bountysmp.listeners.FakeIngotListener;
 import com.bountysmp.listeners.PlayerDeathListener;
+import com.bountysmp.listeners.PickpocketListener;
 import com.bountysmp.listeners.RageVialListener;
 import com.bountysmp.listeners.SmokeBombListener;
+import com.bountysmp.listeners.SpyEyeListener;
 import com.bountysmp.listeners.TrackerListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +26,7 @@ public final class BountySMP extends JavaPlugin {
     private ShopGUI shopGUI;
     private WantedGUI wantedGUI;
     private BountyMenuGUI bountyMenuGUI;
+    private TopGUI topGUI;
 
     @Override
     public void onEnable() {
@@ -36,6 +40,7 @@ public final class BountySMP extends JavaPlugin {
         this.shopGUI = new ShopGUI(this);
         this.wantedGUI = new WantedGUI(this);
         this.bountyMenuGUI = new BountyMenuGUI(this);
+        this.topGUI = new TopGUI(this);
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
@@ -47,6 +52,7 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(shopGUI, this);
         getServer().getPluginManager().registerEvents(wantedGUI, this);
         getServer().getPluginManager().registerEvents(bountyMenuGUI, this);
+        getServer().getPluginManager().registerEvents(topGUI, this);
         getServer().getPluginManager().registerEvents(new TrackerListener(this), this);
         getServer().getPluginManager().registerEvents(new SmokeBombListener(this), this);
         getServer().getPluginManager().registerEvents(new ChaosGrenadeListener(this), this);
@@ -54,6 +60,8 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RageVialListener(this), this);
         getServer().getPluginManager().registerEvents(new FakeIngotListener(this), this);
         getServer().getPluginManager().registerEvents(new DecoyElixirListener(this), this);
+        getServer().getPluginManager().registerEvents(new SpyEyeListener(this), this);
+        getServer().getPluginManager().registerEvents(new PickpocketListener(this), this);
 
         // Sauvegarde périodique (toutes les 5 minutes) pour éviter les pertes de données
         getServer().getScheduler().runTaskTimerAsynchronously(this, () -> dataManager.save(), 20L * 60 * 5, 20L * 60 * 5);
@@ -87,5 +95,9 @@ public final class BountySMP extends JavaPlugin {
 
     public BountyMenuGUI getBountyMenuGUI() {
         return bountyMenuGUI;
+    }
+
+    public TopGUI getTopGUI() {
+        return topGUI;
     }
 }

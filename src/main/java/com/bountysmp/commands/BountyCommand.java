@@ -41,6 +41,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
         switch (sub) {
             case "add" -> handleAdd(sender, args);
+            case "top" -> handleTop(sender);
             case "addcoins" -> handleAdminCoins(sender, args, true);
             case "removecoins" -> handleAdminCoins(sender, args, false);
             case "addadmin" -> handleAddAdmin(sender, args);
@@ -48,6 +49,14 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
+    }
+
+    private void handleTop(CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
+            return;
+        }
+        plugin.getTopGUI().open(player);
     }
 
     private void handleAdd(CommandSender sender, String[] args) {
@@ -164,7 +173,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> subs = new ArrayList<>(List.of("add"));
+        List<String> subs = new ArrayList<>(List.of("add", "top"));
         if (sender.hasPermission("bountysmp.admin")) {
             subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset"));
         }

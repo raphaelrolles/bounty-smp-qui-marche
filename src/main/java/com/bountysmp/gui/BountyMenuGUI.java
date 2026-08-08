@@ -57,6 +57,9 @@ public class BountyMenuGUI implements Listener {
         profile.setItemMeta(profileMeta);
         inv.setItem(13, profile);
 
+        inv.setItem(4, buildActionItem(Material.NETHER_STAR, "§6Top Chasseurs", "open_top",
+                List.of("§7Classement des meilleurs.")));
+
         inv.setItem(11, buildActionItem(Material.CHEST, "§aOuvrir la Boutique", "open_shop",
                 List.of("§7Dépense tes coins.")));
 
@@ -92,6 +95,7 @@ public class BountyMenuGUI implements Listener {
 
         switch (id) {
             case "open_shop" -> plugin.getShopGUI().open(player);
+            case "open_top" -> plugin.getTopGUI().open(player);
             case "open_wanted" -> plugin.getWantedGUI().open(player);
         }
     }

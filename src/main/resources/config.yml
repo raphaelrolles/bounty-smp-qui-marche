@@ -22,18 +22,20 @@ danger:
     5: 100
     10: 250
 
-# Prix de la boutique /bounty shop
+# Prix de la boutique /bounty shop (tous fortement réduits)
 shop:
-  tracker-price: 50
-  iron-kit-price: 120
-  diamond-kit-price: 400
-  netherite-kit-price: 1500
-  smoke-bomb-price: 80
-  chaos-grenade-price: 120
-  dash-item-price: 100
-  rage-vial-price: 90
-  fake-ingot-price: 60
-  decoy-elixir-price: 200
+  tracker-price: 30
+  iron-kit-price: 70
+  diamond-kit-price: 220
+  netherite-kit-price: 800
+  smoke-bomb-price: 45
+  chaos-grenade-price: 70
+  dash-item-price: 60
+  rage-vial-price: 50
+  fake-ingot-price: 35
+  decoy-elixir-price: 110
+  spy-eye-price: 40
+  pickpocket-price: 70
 
 # Cooldowns des objets (façon perle d'ender), en secondes
 item-cooldowns:
@@ -42,6 +44,7 @@ item-cooldowns:
   chaos-grenade-seconds: 20
   rage-vial-seconds: 25
   decoy-elixir-seconds: 45
+  spy-eye-seconds: 20
 
 # Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
 ore-exchange:
@@ -67,3 +70,11 @@ dash-item:
 decoy-elixir:
   duration-seconds: 60
 
+# Œil de Judas : imprécision de la distance annoncée (en %)
+spy-eye:
+  imprecision-percent: 20
+
+# Bourse Trouée : montant volé et portée maximale (en blocs)
+pickpocket:
+  steal-amount: 15
+  max-range: 10.0

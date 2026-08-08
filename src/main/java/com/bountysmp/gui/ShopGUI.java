@@ -26,11 +26,13 @@ import java.util.List;
  * Boutique Bounty : /bounty shop
  * Page 0 = Kits (Kit Fer, Kit Diamant, Kit Netherite)
  * Page 1 = Objets (Tracker, Feu d'artifice, Fiole de Rage, Grenade du Chaos, Élan du Chasseur, Vendre des minerais)
- * Page 2 = Marché Noir (Faux Lingot d'Or, Élixir du Menteur)
+ * Page 2 = Marché Noir (Faux Lingot d'Or, Élixir du Menteur, Œil de Judas, Bourse Trouée)
+ * Les objets sont répartis à distances égales dans une grille 4 rangées.
  */
 public class ShopGUI implements Listener {
 
     private static final int TOTAL_PAGES = 3;
+    private static final int INV_SIZE = 36;
 
     /** Marqueur d'identité fiable pour l'inventaire boutique, contient la page affichée. */
     private static class ShopHolder implements InventoryHolder {
@@ -82,7 +84,7 @@ public class ShopGUI implements Listener {
             case 1 -> "Boutique - Objets";
             default -> "Boutique - Marché Noir";
         };
-        Inventory inv = Bukkit.createInventory(new ShopHolder(page), 27, Component.text(title, NamedTextColor.DARK_RED));
+        Inventory inv = Bukkit.createInventory(new ShopHolder(page), INV_SIZE, Component.text(title, NamedTextColor.DARK_RED));
 
         if (page == 0) {
             populateKitsPage(inv, data);
@@ -100,23 +102,24 @@ public class ShopGUI implements Listener {
         balanceItem.setItemMeta(balanceMeta);
         inv.setItem(4, balanceItem);
 
-        // Navigation
+        // Navigation (dernière rangée, espacée régulièrement)
         if (page > 0) {
-            inv.setItem(18, buildNavItem(Material.ARROW, "§7« Page précédente", "nav_prev"));
+            inv.setItem(27, buildNavItem(Material.ARROW, "§7« Page précédente", "nav_prev"));
         }
         if (page < TOTAL_PAGES - 1) {
-            inv.setItem(26, buildNavItem(Material.ARROW, "§7Page suivante »", "nav_next"));
+            inv.setItem(35, buildNavItem(Material.ARROW, "§7Page suivante »", "nav_next"));
         }
-        inv.setItem(22, buildNavItem(Material.BARRIER, "§7« Retour au menu", "back_menu"));
+        inv.setItem(31, buildNavItem(Material.BARRIER, "§7« Retour au menu", "back_menu"));
 
         player.openInventory(inv);
     }
 
     private void populateKitsPage(Inventory inv, PlayerData data) {
-        int ironPrice = plugin.getConfig().getInt("shop.iron-kit-price", 120);
-        int diamondPrice = plugin.getConfig().getInt("shop.diamond-kit-price", 400);
-        int netheritePrice = plugin.getConfig().getInt("shop.netherite-kit-price", 1500);
+        int ironPrice = plugin.getConfig().getInt("shop.iron-kit-price", 70);
+        int diamondPrice = plugin.getConfig().getInt("shop.diamond-kit-price", 220);
+        int netheritePrice = plugin.getConfig().getInt("shop.netherite-kit-price", 800);
 
+        // Rangée 1 : 3 items également espacés (slots 10, 13, 16)
         inv.setItem(10, buildShopItem(Material.IRON_CHESTPLATE, "iron_kit",
                 "§fKit Fer", ironPrice,
                 List.of("§7Armure fer complète,", "§7épée et pioche en fer.", "", "§ePrix : " + ironPrice + " coins")));
@@ -132,33 +135,35 @@ public class ShopGUI implements Listener {
     }
 
     private void populateItemsPage(Inventory inv, PlayerData data) {
-        int trackerPrice = plugin.getConfig().getInt("shop.tracker-price", 50);
-        int smokePrice = plugin.getConfig().getInt("shop.smoke-bomb-price", 80);
-        int chaosPrice = plugin.getConfig().getInt("shop.chaos-grenade-price", 120);
-        int dashPrice = plugin.getConfig().getInt("shop.dash-item-price", 100);
-        int ragePrice = plugin.getConfig().getInt("shop.rage-vial-price", 90);
+        int trackerPrice = plugin.getConfig().getInt("shop.tracker-price", 30);
+        int smokePrice = plugin.getConfig().getInt("shop.smoke-bomb-price", 45);
+        int chaosPrice = plugin.getConfig().getInt("shop.chaos-grenade-price", 70);
+        int dashPrice = plugin.getConfig().getInt("shop.dash-item-price", 60);
+        int ragePrice = plugin.getConfig().getInt("shop.rage-vial-price", 50);
 
+        // Rangée 1 : 3 items également espacés (slots 10, 13, 16)
         inv.setItem(10, buildShopItem(Material.COMPASS, "tracker",
                 "§6Tracker", trackerPrice,
                 List.of("§7Clic droit + Maj : choisir une cible", "§7Clic droit : coordonnées approximatives",
                         "§7(imprécises, cooldown façon perle d'ender).", "", "§ePrix : " + trackerPrice + " coins")));
 
-        inv.setItem(11, buildShopItem(Material.FIREWORK_ROCKET, "smoke_bomb",
+        inv.setItem(13, buildShopItem(Material.FIREWORK_ROCKET, "smoke_bomb",
                 "§bFeu d'Artifice du Fugitif", smokePrice,
                 List.of("§7Clic droit : invisibilité et vitesse", "§710s, aveugle les joueurs proches 2s.",
                         "", "§ePrix : " + smokePrice + " coins")));
 
-        inv.setItem(12, buildShopItem(Material.POTION, "rage_vial",
+        inv.setItem(16, buildShopItem(Material.POTION, "rage_vial",
                 "§6Fiole de Rage", ragePrice,
                 List.of("§7Clic droit : Force et Résistance au feu", "§7pendant 15 secondes.",
                         "", "§ePrix : " + ragePrice + " coins")));
 
-        inv.setItem(13, buildShopItem(Material.SNOWBALL, "chaos_grenade",
+        // Rangée 2 : 3 items également espacés (slots 19, 22, 25)
+        inv.setItem(19, buildShopItem(Material.SNOWBALL, "chaos_grenade",
                 "§dGrenade du Chaos", chaosPrice,
                 List.of("§7Clic droit : lance une grenade qui", "§7applique un effet négatif aléatoire",
                         "§7au joueur touché.", "", "§ePrix : " + chaosPrice + " coins")));
 
-        inv.setItem(15, buildShopItem(Material.FEATHER, "dash_item",
+        inv.setItem(22, buildShopItem(Material.FEATHER, "dash_item",
                 "§bÉlan du Chasseur", dashPrice,
                 List.of("§7Clic droit : propulsion rapide", "§7en avant, sans dégâts de chute.",
                         "", "§ePrix : " + dashPrice + " coins")));
@@ -175,14 +180,18 @@ public class ShopGUI implements Listener {
                         "§71 émeraude = " + emeraldRate + " coins",
                         "§71 lingot de netherite = " + netheriteRate + " coins",
                         "", "§7Utilisations aujourd'hui : §f" + usedToday + "/" + dailyLimit));
-        inv.setItem(16, sellItem);
+        inv.setItem(25, sellItem);
     }
 
     private void populateBlackMarketPage(Inventory inv, PlayerData data) {
-        int ingotPrice = plugin.getConfig().getInt("shop.fake-ingot-price", 60);
-        int elixirPrice = plugin.getConfig().getInt("shop.decoy-elixir-price", 200);
+        int ingotPrice = plugin.getConfig().getInt("shop.fake-ingot-price", 35);
+        int elixirPrice = plugin.getConfig().getInt("shop.decoy-elixir-price", 110);
         int elixirDuration = plugin.getConfig().getInt("decoy-elixir.duration-seconds", 60);
+        int spyPrice = plugin.getConfig().getInt("shop.spy-eye-price", 40);
+        int pickpocketPrice = plugin.getConfig().getInt("shop.pickpocket-price", 70);
+        int pickpocketAmount = plugin.getConfig().getInt("pickpocket.steal-amount", 15);
 
+        // Grille 2x2 également espacée (slots 11, 15 puis 20, 24)
         inv.setItem(11, buildShopItem(Material.GOLD_NUGGET, "fake_ingot",
                 "§6Faux Lingot d'Or", ingotPrice,
                 List.of("§7Laisse-le traîner au sol :", "§7quiconque le ramasse (sauf toi)",
@@ -192,6 +201,16 @@ public class ShopGUI implements Listener {
                 "§5Élixir du Menteur", elixirPrice,
                 List.of("§7Clic droit : brouille pendant " + elixirDuration + "s", "§7les signaux de tout Tracker",
                         "§7pointé sur toi.", "", "§ePrix : " + elixirPrice + " coins")));
+
+        inv.setItem(20, buildShopItem(Material.ENDER_EYE, "spy_eye",
+                "§dŒil de Judas", spyPrice,
+                List.of("§7Clic droit : révèle la direction", "§7et la distance approximative du",
+                        "§7joueur en ligne le plus proche.", "", "§ePrix : " + spyPrice + " coins")));
+
+        inv.setItem(24, buildShopItem(Material.STRING, "pickpocket",
+                "§eBourse Trouée", pickpocketPrice,
+                List.of("§7Clic droit : vole " + pickpocketAmount + " coins", "§7au joueur en ligne le plus proche",
+                        "§7(objet à usage unique).", "", "§ePrix : " + pickpocketPrice + " coins")));
     }
 
     private ItemStack buildShopItem(Material material, String id, String name, int price, List<String> lore) {
@@ -246,16 +265,18 @@ public class ShopGUI implements Listener {
         int purchaseSlot = event.getSlot();
 
         switch (id) {
-            case "iron_kit" -> purchase(player, data, "shop.iron-kit-price", 120, this::giveIronKit, purchaseSlot);
-            case "diamond_kit" -> purchase(player, data, "shop.diamond-kit-price", 400, this::giveDiamondKit, purchaseSlot);
-            case "netherite_kit" -> purchase(player, data, "shop.netherite-kit-price", 1500, this::giveNetheriteKit, purchaseSlot);
-            case "tracker" -> purchase(player, data, "shop.tracker-price", 50, this::giveTracker, purchaseSlot);
-            case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 80, this::giveSmokeBomb, purchaseSlot);
-            case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 120, this::giveChaosGrenade, purchaseSlot);
-            case "dash_item" -> purchase(player, data, "shop.dash-item-price", 100, this::giveDashItem, purchaseSlot);
-            case "rage_vial" -> purchase(player, data, "shop.rage-vial-price", 90, this::giveRageVial, purchaseSlot);
-            case "fake_ingot" -> purchase(player, data, "shop.fake-ingot-price", 60, this::giveFakeIngot, purchaseSlot);
-            case "decoy_elixir" -> purchase(player, data, "shop.decoy-elixir-price", 200, this::giveDecoyElixir, purchaseSlot);
+            case "iron_kit" -> purchase(player, data, "shop.iron-kit-price", 70, this::giveIronKit, purchaseSlot);
+            case "diamond_kit" -> purchase(player, data, "shop.diamond-kit-price", 220, this::giveDiamondKit, purchaseSlot);
+            case "netherite_kit" -> purchase(player, data, "shop.netherite-kit-price", 800, this::giveNetheriteKit, purchaseSlot);
+            case "tracker" -> purchase(player, data, "shop.tracker-price", 30, this::giveTracker, purchaseSlot);
+            case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 45, this::giveSmokeBomb, purchaseSlot);
+            case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 70, this::giveChaosGrenade, purchaseSlot);
+            case "dash_item" -> purchase(player, data, "shop.dash-item-price", 60, this::giveDashItem, purchaseSlot);
+            case "rage_vial" -> purchase(player, data, "shop.rage-vial-price", 50, this::giveRageVial, purchaseSlot);
+            case "fake_ingot" -> purchase(player, data, "shop.fake-ingot-price", 35, this::giveFakeIngot, purchaseSlot);
+            case "decoy_elixir" -> purchase(player, data, "shop.decoy-elixir-price", 110, this::giveDecoyElixir, purchaseSlot);
+            case "spy_eye" -> purchase(player, data, "shop.spy-eye-price", 40, this::giveSpyEye, purchaseSlot);
+            case "pickpocket" -> purchase(player, data, "shop.pickpocket-price", 70, this::givePickpocket, purchaseSlot);
             case "sell_ores" -> sellOres(player, data);
         }
 
@@ -427,6 +448,30 @@ public class ShopGUI implements Listener {
         meta.lore(List.of(Component.text("§7Clic droit : brouille les Trackers").decoration(TextDecoration.ITALIC, false),
                 Component.text("§7pointés sur toi pendant un moment.").decoration(TextDecoration.ITALIC, false)));
         meta.getPersistentDataContainer().set(decoyKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveSpyEye(Player player) {
+        NamespacedKey spyKey = new NamespacedKey(plugin, "bounty_spy_eye");
+        ItemStack item = new ItemStack(Material.ENDER_EYE);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§dŒil de Judas").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : révèle la direction").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7et distance du joueur le plus proche.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(spyKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void givePickpocket(Player player) {
+        NamespacedKey pickpocketKey = new NamespacedKey(plugin, "bounty_pickpocket");
+        ItemStack item = new ItemStack(Material.STRING);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§eBourse Trouée").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : vole des coins au joueur").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7le plus proche (usage unique).").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(pickpocketKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         giveItems(player, item);
     }
