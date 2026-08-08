@@ -110,6 +110,15 @@ public class DataManager {
         logger.info("BountySMP: " + cache.size() + " profils joueurs chargés.");
     }
 
+    /** Efface TOUTES les données en mémoire et sur disque (coins, primes, achats, etc. de tous les joueurs). */
+    public void resetAll() {
+        cache.clear();
+        if (dataFile.exists()) {
+            dataFile.delete();
+        }
+        logger.warning("BountySMP: toutes les données ont été réinitialisées via /bounty reset.");
+    }
+
     public void save() {
         YamlConfiguration yaml = new YamlConfiguration();
         for (Map.Entry<UUID, PlayerData> entry : cache.entrySet()) {

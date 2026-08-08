@@ -43,7 +43,8 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "add" -> handleAdd(sender, args);
             case "addcoins" -> handleAdminCoins(sender, args, true);
             case "removecoins" -> handleAdminCoins(sender, args, false);
-            case "setadmin" -> handleSetAdmin(sender, args);
+            case "addadmin" -> handleAddAdmin(sender, args);
+            case "reset" -> handleReset(sender, args);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
@@ -117,13 +118,14 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
                 + (add ? "à " : "de ") + target.getName(), NamedTextColor.GREEN));
     }
 
-    private void handleSetAdmin(CommandSender sender, String[] args) {
+    /** Ajoute (au lieu d'écraser) une prime sur un joueur, gratuitement, sans passer par les coins d'un joueur. */
+    private void handleAddAdmin(CommandSender sender, String[] args) {
         if (!sender.hasPermission("bountysmp.admin")) {
             sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
             return;
         }
         if (args.length < 3) {
-            sender.sendMessage(Component.text("Usage : /bounty setadmin <joueur> <montant>", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Usage : /bounty addadmin <joueur> <montant>", NamedTextColor.RED));
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
@@ -134,27 +136,47 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(Component.text("Montant invalide.", NamedTextColor.RED));
             return;
         }
-        PlayerData data = plugin.getDataManager().get(target.getUniqueId());
-        data.clearBounty();
-        data.setBounty(amount);
-        if (amount > 0) {
-            data.getBountyContributors().put("Admin", amount);
+        if (amount <= 0) {
+            sender.sendMessage(Component.text("Le montant doit être positif.", NamedTextColor.RED));
+            return;
         }
-        sender.sendMessage(Component.text("Prime de " + target.getName() + " définie à " + (long) amount + " coins.", NamedTextColor.GREEN));
+        PlayerData data = plugin.getDataManager().get(target.getUniqueId());
+        data.addContribution("Admin", amount);
+        sender.sendMessage(Component.text("Prime de " + target.getName() + " augmentée de " + (long) amount
+                + " coins (total : " + (long) data.getBounty() + ").", NamedTextColor.GREEN));
+    }
+
+    /** Réinitialise TOUTES les données du plugin (coins, primes, achats...). Nécessite une confirmation explicite. */
+    private void handleReset(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        if (args.length < 2 || !args[1].equals("CONFIRMER")) {
+            sender.sendMessage(Component.text("⚠ Ceci va effacer TOUTES les données du plugin (coins, primes, achats...) pour TOUS les joueurs.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Tape /bounty reset CONFIRMER pour valider.", NamedTextColor.YELLOW));
+            return;
+        }
+        plugin.getDataManager().resetAll();
+        sender.sendMessage(Component.text("✅ Toutes les données de BountySMP ont été réinitialisées.", NamedTextColor.GREEN));
+        Bukkit.broadcast(Component.text("⚠ Un administrateur a réinitialisé le système de primes du serveur.", NamedTextColor.DARK_RED));
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> subs = new ArrayList<>(List.of("add"));
         if (sender.hasPermission("bountysmp.admin")) {
-            subs.addAll(List.of("addcoins", "removecoins", "setadmin"));
+            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
-        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "setadmin").contains(args[0].toLowerCase())) {
+        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "addadmin").contains(args[0].toLowerCase())) {
             return Bukkit.getOnlinePlayers().stream().map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("reset")) {
+            return List.of("CONFIRMER").stream().filter(s -> s.startsWith(args[1].toUpperCase())).collect(Collectors.toList());
         }
         return new ArrayList<>();
     }

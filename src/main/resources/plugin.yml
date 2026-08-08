@@ -8,7 +8,7 @@ description: Plugin de chasse aux primes pour SMP vanilla (Bounty Coins, boutiqu
 commands:
   bounty:
     description: Commande principale du système de primes (ouvre le menu si sans argument).
-    usage: /bounty [add|top|addcoins|removecoins|setadmin] ...
+    usage: /bounty [add|addcoins|removecoins|addadmin|reset] ...
 
 permissions:
   bountysmp.admin:
