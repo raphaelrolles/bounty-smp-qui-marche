@@ -37,10 +37,10 @@ shop:
   lucky-purse-price: 50
   spy-eye-price: 40
   pickpocket-price: 70
-  settler-kit-price: 40
-  enchant-pack-price: 60
-  building-pack-price: 25
-  xp-bottles-price: 30
+  builder-kit-price: 30
+  farmer-kit-price: 25
+  explorer-kit-price: 45
+  toolbox-price: 35
 
 # Cooldowns des objets (façon perle d'ender), en secondes - courts pour plus de dynamisme
 item-cooldowns:

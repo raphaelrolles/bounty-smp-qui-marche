@@ -170,7 +170,7 @@ public class ShopGUI implements Listener {
                 List.of("§7Clic droit : propulsion rapide", "§7en avant, sans dégâts de chute.",
                         "", "§ePrix : " + dashPrice + " coins")));
 
-        inv.setItem(25, buildShopItem(Material.HOPPER, "sell_info", "§eVendre des minerais", 0,
+        inv.setItem(25, buildShopItem(Material.EMERALD, "sell_info", "§eVendre des minerais", 0,
                 List.of("§7Utilise la commande §f/sell", "§7pour échanger tes minerais", "§7contre des Bounty Coins.")));
     }
 
@@ -210,31 +210,31 @@ public class ShopGUI implements Listener {
     }
 
     private void populateEarlyGamePage(Inventory inv, PlayerData data) {
-        int kitPrice = plugin.getConfig().getInt("shop.settler-kit-price", 40);
-        int enchantPrice = plugin.getConfig().getInt("shop.enchant-pack-price", 60);
-        int buildPrice = plugin.getConfig().getInt("shop.building-pack-price", 25);
-        int xpPrice = plugin.getConfig().getInt("shop.xp-bottles-price", 30);
+        int builderPrice = plugin.getConfig().getInt("shop.builder-kit-price", 30);
+        int farmerPrice = plugin.getConfig().getInt("shop.farmer-kit-price", 25);
+        int explorerPrice = plugin.getConfig().getInt("shop.explorer-kit-price", 45);
+        int toolboxPrice = plugin.getConfig().getInt("shop.toolbox-price", 35);
 
         // Rangée également espacée (slots 10, 13, 16, 19)
-        inv.setItem(10, buildShopItem(Material.IRON_SWORD, "settler_kit",
-                "§fTrousse du Colon", kitPrice,
-                List.of("§7Outils et épée en fer, bouclier,", "§716 torches et 16 pains.",
-                        "", "§ePrix : " + kitPrice + " coins")));
+        inv.setItem(10, buildShopItem(Material.OAK_PLANKS, "builder_kit",
+                "§eNécessaire du Bâtisseur", builderPrice,
+                List.of("§764 planches de chêne,", "§764 pierres et 16 vitres.",
+                        "", "§ePrix : " + builderPrice + " coins")));
 
-        inv.setItem(13, buildShopItem(Material.ENCHANTING_TABLE, "enchant_pack",
-                "§dPack d'Enchantement", enchantPrice,
-                List.of("§7Table d'enchantement,", "§74 lapis-lazuli et 8 fioles", "§7d'expérience.",
-                        "", "§ePrix : " + enchantPrice + " coins")));
+        inv.setItem(13, buildShopItem(Material.WOODEN_HOE, "farmer_kit",
+                "§aPanier du Fermier", farmerPrice,
+                List.of("§7Houe en fer, graines de blé,", "§7carottes et pommes de terre.",
+                        "", "§ePrix : " + farmerPrice + " coins")));
 
-        inv.setItem(16, buildShopItem(Material.COBBLESTONE, "building_pack",
-                "§7Sac de Construction", buildPrice,
-                List.of("§764 pierres, 64 terre", "§7et un seau d'eau pour bâtir vite.",
-                        "", "§ePrix : " + buildPrice + " coins")));
+        inv.setItem(16, buildShopItem(Material.RED_BED, "explorer_kit",
+                "§bTrousse d'Exploration", explorerPrice,
+                List.of("§7Un lit, un seau d'eau", "§7et un briquet.",
+                        "", "§ePrix : " + explorerPrice + " coins")));
 
-        inv.setItem(19, buildShopItem(Material.EXPERIENCE_BOTTLE, "xp_bottles",
-                "§aFioles d'Expérience", xpPrice,
-                List.of("§716 fioles d'expérience", "§7pour monter de niveau vite.",
-                        "", "§ePrix : " + xpPrice + " coins")));
+        inv.setItem(19, buildShopItem(Material.STONE_PICKAXE, "toolbox",
+                "§7Caisse à Outils", toolboxPrice,
+                List.of("§7Outils complets en pierre", "§7et 16 charbon.",
+                        "", "§ePrix : " + toolboxPrice + " coins")));
     }
 
     private ItemStack buildShopItem(Material material, String id, String name, int price, List<String> lore) {
@@ -302,10 +302,10 @@ public class ShopGUI implements Listener {
             case "lucky_purse" -> purchase(player, data, "shop.lucky-purse-price", 50, this::giveLuckyPurse, purchaseSlot);
             case "spy_eye" -> purchase(player, data, "shop.spy-eye-price", 40, this::giveSpyEye, purchaseSlot);
             case "pickpocket" -> purchase(player, data, "shop.pickpocket-price", 70, this::givePickpocket, purchaseSlot);
-            case "settler_kit" -> purchase(player, data, "shop.settler-kit-price", 40, this::giveSettlerKit, purchaseSlot);
-            case "enchant_pack" -> purchase(player, data, "shop.enchant-pack-price", 60, this::giveEnchantPack, purchaseSlot);
-            case "building_pack" -> purchase(player, data, "shop.building-pack-price", 25, this::giveBuildingPack, purchaseSlot);
-            case "xp_bottles" -> purchase(player, data, "shop.xp-bottles-price", 30, this::giveXpBottles, purchaseSlot);
+            case "builder_kit" -> purchase(player, data, "shop.builder-kit-price", 30, this::giveBuilderKit, purchaseSlot);
+            case "farmer_kit" -> purchase(player, data, "shop.farmer-kit-price", 25, this::giveFarmerKit, purchaseSlot);
+            case "explorer_kit" -> purchase(player, data, "shop.explorer-kit-price", 45, this::giveExplorerKit, purchaseSlot);
+            case "toolbox" -> purchase(player, data, "shop.toolbox-price", 35, this::giveToolbox, purchaseSlot);
         }
 
         // Rafraîchit l'affichage au tick suivant (solde à jour)
@@ -438,35 +438,39 @@ public class ShopGUI implements Listener {
         giveItems(player, item);
     }
 
-    private void giveSettlerKit(Player player) {
+    private void giveBuilderKit(Player player) {
         giveItems(player,
-                new ItemStack(Material.IRON_SWORD),
-                new ItemStack(Material.IRON_PICKAXE),
-                new ItemStack(Material.IRON_AXE),
-                new ItemStack(Material.SHIELD),
-                new ItemStack(Material.TORCH, 16),
-                new ItemStack(Material.BREAD, 16)
-        );
-    }
-
-    private void giveEnchantPack(Player player) {
-        giveItems(player,
-                new ItemStack(Material.ENCHANTING_TABLE),
-                new ItemStack(Material.LAPIS_LAZULI, 4),
-                new ItemStack(Material.EXPERIENCE_BOTTLE, 8)
-        );
-    }
-
-    private void giveBuildingPack(Player player) {
-        giveItems(player,
+                new ItemStack(Material.OAK_PLANKS, 64),
                 new ItemStack(Material.COBBLESTONE, 64),
-                new ItemStack(Material.DIRT, 64),
-                new ItemStack(Material.WATER_BUCKET)
+                new ItemStack(Material.GLASS, 16)
         );
     }
 
-    private void giveXpBottles(Player player) {
-        giveItems(player, new ItemStack(Material.EXPERIENCE_BOTTLE, 16));
+    private void giveFarmerKit(Player player) {
+        giveItems(player,
+                new ItemStack(Material.IRON_HOE),
+                new ItemStack(Material.WHEAT_SEEDS, 16),
+                new ItemStack(Material.CARROT, 8),
+                new ItemStack(Material.POTATO, 8)
+        );
+    }
+
+    private void giveExplorerKit(Player player) {
+        giveItems(player,
+                new ItemStack(Material.RED_BED),
+                new ItemStack(Material.WATER_BUCKET),
+                new ItemStack(Material.FLINT_AND_STEEL)
+        );
+    }
+
+    private void giveToolbox(Player player) {
+        giveItems(player,
+                new ItemStack(Material.STONE_SWORD),
+                new ItemStack(Material.STONE_PICKAXE),
+                new ItemStack(Material.STONE_AXE),
+                new ItemStack(Material.STONE_SHOVEL),
+                new ItemStack(Material.COAL, 16)
+        );
     }
 
     private void giveSpyEye(Player player) {
