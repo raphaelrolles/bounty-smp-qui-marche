@@ -1,8 +1,10 @@
 package com.bountysmp;
 
 import com.bountysmp.commands.BountyCommand;
+import com.bountysmp.commands.SellCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
+import com.bountysmp.gui.SellGUI;
 import com.bountysmp.gui.ShopGUI;
 import com.bountysmp.gui.TopGUI;
 import com.bountysmp.gui.WantedGUI;
@@ -28,6 +30,7 @@ public final class BountySMP extends JavaPlugin {
     private WantedGUI wantedGUI;
     private BountyMenuGUI bountyMenuGUI;
     private TopGUI topGUI;
+    private SellGUI sellGUI;
 
     @Override
     public void onEnable() {
@@ -42,11 +45,13 @@ public final class BountySMP extends JavaPlugin {
         this.wantedGUI = new WantedGUI(this);
         this.bountyMenuGUI = new BountyMenuGUI(this);
         this.topGUI = new TopGUI(this);
+        this.sellGUI = new SellGUI(this);
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
         getCommand("bounty").setExecutor(bountyCommand);
         getCommand("bounty").setTabCompleter(bountyCommand);
+        getCommand("sell").setExecutor(new SellCommand(this));
 
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -54,6 +59,7 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(wantedGUI, this);
         getServer().getPluginManager().registerEvents(bountyMenuGUI, this);
         getServer().getPluginManager().registerEvents(topGUI, this);
+        getServer().getPluginManager().registerEvents(sellGUI, this);
         getServer().getPluginManager().registerEvents(new TrackerListener(this), this);
         getServer().getPluginManager().registerEvents(new SmokeBombListener(this), this);
         getServer().getPluginManager().registerEvents(new ChaosGrenadeListener(this), this);
@@ -101,5 +107,9 @@ public final class BountySMP extends JavaPlugin {
 
     public TopGUI getTopGUI() {
         return topGUI;
+    }
+
+    public SellGUI getSellGUI() {
+        return sellGUI;
     }
 }

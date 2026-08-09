@@ -2,25 +2,25 @@
 #   Configuration - Bounty SMP
 # ================================
 
-# Récompense de base pour un kill "normal" (joueur sans prime)
-kill-reward: 5
+# Récompense de base pour un kill "normal" (joueur sans prime) - boostée pour rendre les coins plus faciles à obtenir
+kill-reward: 15
 
 # Anti-farm : si tu tues LE MEME joueur plusieurs fois avant ce délai (en secondes),
 # la récompense est fortement réduite pour éviter le farm entre amis.
 anti-farm:
   cooldown-seconds: 600
-  reduced-reward: 1
+  reduced-reward: 3
 
 # Système de danger automatique : plus un joueur enchaine les kills dans une fenêtre
-# de temps donnée, plus sa prime augmente automatiquement.
+# de temps donnée, plus sa prime augmente automatiquement (bonus augmentés).
 danger:
   window-seconds: 600
   # Nombre de kills (dans la fenêtre) -> bonus de prime ajouté (une seule fois par palier)
   thresholds:
-    1: 10
-    3: 50
-    5: 100
-    10: 250
+    1: 20
+    3: 80
+    5: 150
+    10: 400
 
 # Prix de la boutique /bounty shop
 shop:
@@ -37,12 +37,12 @@ shop:
   lucky-purse-price: 50
   spy-eye-price: 40
   pickpocket-price: 70
-  survival-kit-price: 15
-  travel-rations-price: 10
-  torch-bag-price: 8
-  first-aid-price: 20
+  settler-kit-price: 40
+  enchant-pack-price: 60
+  building-pack-price: 25
+  xp-bottles-price: 30
 
-# Cooldowns des objets (façon perle d'ender), en secondes - raccourcis pour plus de dynamisme
+# Cooldowns des objets (façon perle d'ender), en secondes - courts pour plus de dynamisme
 item-cooldowns:
   smoke-bomb-seconds: 12
   dash-item-seconds: 10
@@ -51,12 +51,14 @@ item-cooldowns:
   stink-bomb-seconds: 10
   spy-eye-seconds: 10
 
-# Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
+# Échange de minerais contre des Bounty Coins (via /sell) - taux généreux, limite quotidienne large
 ore-exchange:
-  diamond-rate: 5
-  emerald-rate: 2
-  netherite-ingot-rate: 30
-  daily-limit: 3
+  diamond-rate: 8
+  emerald-rate: 4
+  netherite-ingot-rate: 50
+  gold-ingot-rate: 2
+  iron-ingot-rate: 1
+  daily-limit: 8
 
 # Objet Tracker : cooldown (façon perle d'ender) et imprécision des coordonnées
 tracker:

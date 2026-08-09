@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -72,6 +73,13 @@ public class StinkBombListener implements Listener {
         }
 
         player.sendMessage(Component.text("🤢 Bombe Puante lancée !", NamedTextColor.DARK_GREEN));
+    }
+
+    @EventHandler
+    public void onEggThrow(PlayerEggThrowEvent event) {
+        if (event.getEgg().hasMetadata(METADATA_KEY)) {
+            event.setHatching(false);
+        }
     }
 
     @EventHandler

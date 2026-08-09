@@ -9,6 +9,9 @@ commands:
   bounty:
     description: Commande principale du système de primes (ouvre le menu si sans argument).
     usage: /bounty [add|addcoins|removecoins|addadmin|reset] ...
+  sell:
+    description: Ouvre un menu où déposer des minerais à vendre contre des Bounty Coins.
+    usage: /sell
 
 permissions:
   bountysmp.admin:

@@ -18,8 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -172,19 +170,8 @@ public class ShopGUI implements Listener {
                 List.of("§7Clic droit : propulsion rapide", "§7en avant, sans dégâts de chute.",
                         "", "§ePrix : " + dashPrice + " coins")));
 
-        int diamondRate = plugin.getConfig().getInt("ore-exchange.diamond-rate", 5);
-        int emeraldRate = plugin.getConfig().getInt("ore-exchange.emerald-rate", 2);
-        int netheriteRate = plugin.getConfig().getInt("ore-exchange.netherite-ingot-rate", 30);
-        int dailyLimit = plugin.getConfig().getInt("ore-exchange.daily-limit", 3);
-        int usedToday = currentEpochDay() == data.getOreExchangeEpochDay() ? data.getOreExchangesToday() : 0;
-
-        ItemStack sellItem = buildShopItem(Material.HOPPER, "sell_ores", "§eVendre des minerais", 0,
-                List.of("§7Échange tous tes diamants,", "§7émeraudes et lingots de netherite", "§7présents dans ton inventaire.",
-                        "", "§71 diamant = " + diamondRate + " coins",
-                        "§71 émeraude = " + emeraldRate + " coins",
-                        "§71 lingot de netherite = " + netheriteRate + " coins",
-                        "", "§7Utilisations aujourd'hui : §f" + usedToday + "/" + dailyLimit));
-        inv.setItem(25, sellItem);
+        inv.setItem(25, buildShopItem(Material.HOPPER, "sell_info", "§eVendre des minerais", 0,
+                List.of("§7Utilise la commande §f/sell", "§7pour échanger tes minerais", "§7contre des Bounty Coins.")));
     }
 
     private void populateBlackMarketPage(Inventory inv, PlayerData data) {
@@ -223,27 +210,31 @@ public class ShopGUI implements Listener {
     }
 
     private void populateEarlyGamePage(Inventory inv, PlayerData data) {
-        int kitPrice = plugin.getConfig().getInt("shop.survival-kit-price", 15);
-        int rationsPrice = plugin.getConfig().getInt("shop.travel-rations-price", 10);
-        int torchPrice = plugin.getConfig().getInt("shop.torch-bag-price", 8);
-        int aidPrice = plugin.getConfig().getInt("shop.first-aid-price", 20);
+        int kitPrice = plugin.getConfig().getInt("shop.settler-kit-price", 40);
+        int enchantPrice = plugin.getConfig().getInt("shop.enchant-pack-price", 60);
+        int buildPrice = plugin.getConfig().getInt("shop.building-pack-price", 25);
+        int xpPrice = plugin.getConfig().getInt("shop.xp-bottles-price", 30);
 
-        // Rangée également espacée (slots 10, 13, 16, 19 -> réajusté à 11,14,17... on garde 4 slots réguliers)
-        inv.setItem(10, buildShopItem(Material.WOODEN_SWORD, "survival_kit",
-                "§fKit du Survivant", kitPrice,
-                List.of("§7Outils et épée en pierre,", "§7de quoi démarrer vite.", "", "§ePrix : " + kitPrice + " coins")));
+        // Rangée également espacée (slots 10, 13, 16, 19)
+        inv.setItem(10, buildShopItem(Material.IRON_SWORD, "settler_kit",
+                "§fTrousse du Colon", kitPrice,
+                List.of("§7Outils et épée en fer, bouclier,", "§716 torches et 16 pains.",
+                        "", "§ePrix : " + kitPrice + " coins")));
 
-        inv.setItem(15, buildShopItem(Material.COOKED_BEEF, "travel_rations",
-                "§6Provisions de Route", rationsPrice,
-                List.of("§7Un bon stock de nourriture", "§7pour ne pas mourir de faim.", "", "§ePrix : " + rationsPrice + " coins")));
+        inv.setItem(13, buildShopItem(Material.ENCHANTING_TABLE, "enchant_pack",
+                "§dPack d'Enchantement", enchantPrice,
+                List.of("§7Table d'enchantement,", "§74 lapis-lazuli et 8 fioles", "§7d'expérience.",
+                        "", "§ePrix : " + enchantPrice + " coins")));
 
-        inv.setItem(20, buildShopItem(Material.TORCH, "torch_bag",
-                "§eSac de Torches", torchPrice,
-                List.of("§7De quoi éclairer ta base", "§7et repousser les mobs.", "", "§ePrix : " + torchPrice + " coins")));
+        inv.setItem(16, buildShopItem(Material.COBBLESTONE, "building_pack",
+                "§7Sac de Construction", buildPrice,
+                List.of("§764 pierres, 64 terre", "§7et un seau d'eau pour bâtir vite.",
+                        "", "§ePrix : " + buildPrice + " coins")));
 
-        inv.setItem(25, buildShopItem(Material.GOLDEN_CARROT, "first_aid",
-                "§dTrousse de Secours", aidPrice,
-                List.of("§7Carottes dorées pour te", "§7soigner en cas de coup dur.", "", "§ePrix : " + aidPrice + " coins")));
+        inv.setItem(19, buildShopItem(Material.EXPERIENCE_BOTTLE, "xp_bottles",
+                "§aFioles d'Expérience", xpPrice,
+                List.of("§716 fioles d'expérience", "§7pour monter de niveau vite.",
+                        "", "§ePrix : " + xpPrice + " coins")));
     }
 
     private ItemStack buildShopItem(Material material, String id, String name, int price, List<String> lore) {
@@ -311,11 +302,10 @@ public class ShopGUI implements Listener {
             case "lucky_purse" -> purchase(player, data, "shop.lucky-purse-price", 50, this::giveLuckyPurse, purchaseSlot);
             case "spy_eye" -> purchase(player, data, "shop.spy-eye-price", 40, this::giveSpyEye, purchaseSlot);
             case "pickpocket" -> purchase(player, data, "shop.pickpocket-price", 70, this::givePickpocket, purchaseSlot);
-            case "survival_kit" -> purchase(player, data, "shop.survival-kit-price", 15, this::giveSurvivalKit, purchaseSlot);
-            case "travel_rations" -> purchase(player, data, "shop.travel-rations-price", 10, this::giveTravelRations, purchaseSlot);
-            case "torch_bag" -> purchase(player, data, "shop.torch-bag-price", 8, this::giveTorchBag, purchaseSlot);
-            case "first_aid" -> purchase(player, data, "shop.first-aid-price", 20, this::giveFirstAid, purchaseSlot);
-            case "sell_ores" -> sellOres(player, data);
+            case "settler_kit" -> purchase(player, data, "shop.settler-kit-price", 40, this::giveSettlerKit, purchaseSlot);
+            case "enchant_pack" -> purchase(player, data, "shop.enchant-pack-price", 60, this::giveEnchantPack, purchaseSlot);
+            case "building_pack" -> purchase(player, data, "shop.building-pack-price", 25, this::giveBuildingPack, purchaseSlot);
+            case "xp_bottles" -> purchase(player, data, "shop.xp-bottles-price", 30, this::giveXpBottles, purchaseSlot);
         }
 
         // Rafraîchit l'affichage au tick suivant (solde à jour)
@@ -347,60 +337,6 @@ public class ShopGUI implements Listener {
     private void playPurchaseAnimation(Player player) {
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         player.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, player.getEyeLocation(), 12, 0.3, 0.3, 0.3, 0);
-    }
-
-    private long currentEpochDay() {
-        return Instant.now().atZone(ZoneOffset.UTC).toLocalDate().toEpochDay();
-    }
-
-    private void sellOres(Player player, PlayerData data) {
-        int dailyLimit = plugin.getConfig().getInt("ore-exchange.daily-limit", 3);
-        long today = currentEpochDay();
-
-        if (data.getOreExchangeEpochDay() != today) {
-            data.setOreExchangeEpochDay(today);
-            data.setOreExchangesToday(0);
-        }
-
-        if (data.getOreExchangesToday() >= dailyLimit) {
-            player.sendMessage(Component.text("Tu as atteint la limite quotidienne d'échanges de minerais (" + dailyLimit + "/jour). Reviens demain !", NamedTextColor.RED));
-            return;
-        }
-
-        int diamondRate = plugin.getConfig().getInt("ore-exchange.diamond-rate", 5);
-        int emeraldRate = plugin.getConfig().getInt("ore-exchange.emerald-rate", 2);
-        int netheriteRate = plugin.getConfig().getInt("ore-exchange.netherite-ingot-rate", 30);
-
-        int diamonds = countAndRemove(player, Material.DIAMOND);
-        int emeralds = countAndRemove(player, Material.EMERALD);
-        int netherite = countAndRemove(player, Material.NETHERITE_INGOT);
-
-        double total = diamonds * diamondRate + emeralds * emeraldRate + netherite * netheriteRate;
-
-        if (total <= 0) {
-            player.sendMessage(Component.text("Tu n'as aucun diamant, émeraude ou lingot de netherite à vendre.", NamedTextColor.RED));
-            return;
-        }
-
-        data.addCoins(total);
-        data.setOreExchangesToday(data.getOreExchangesToday() + 1);
-        player.sendMessage(Component.text("Vendu : ", NamedTextColor.GREEN)
-                .append(Component.text(diamonds + " diamants, " + emeralds + " émeraudes, " + netherite + " lingots de netherite", NamedTextColor.AQUA))
-                .append(Component.text(" contre " + (long) total + " coins !", NamedTextColor.GREEN)));
-        player.sendMessage(Component.text("Échanges restants aujourd'hui : " + (dailyLimit - data.getOreExchangesToday()), NamedTextColor.GRAY));
-    }
-
-    private int countAndRemove(Player player, Material material) {
-        int count = 0;
-        for (ItemStack stack : player.getInventory().getContents()) {
-            if (stack != null && stack.getType() == material) {
-                count += stack.getAmount();
-            }
-        }
-        if (count > 0) {
-            player.getInventory().remove(material);
-        }
-        return count;
     }
 
     /**
@@ -502,25 +438,35 @@ public class ShopGUI implements Listener {
         giveItems(player, item);
     }
 
-    private void giveSurvivalKit(Player player) {
+    private void giveSettlerKit(Player player) {
         giveItems(player,
-                new ItemStack(Material.STONE_SWORD),
-                new ItemStack(Material.STONE_PICKAXE),
-                new ItemStack(Material.STONE_AXE),
-                new ItemStack(Material.BREAD, 8)
+                new ItemStack(Material.IRON_SWORD),
+                new ItemStack(Material.IRON_PICKAXE),
+                new ItemStack(Material.IRON_AXE),
+                new ItemStack(Material.SHIELD),
+                new ItemStack(Material.TORCH, 16),
+                new ItemStack(Material.BREAD, 16)
         );
     }
 
-    private void giveTravelRations(Player player) {
-        giveItems(player, new ItemStack(Material.COOKED_BEEF, 16));
+    private void giveEnchantPack(Player player) {
+        giveItems(player,
+                new ItemStack(Material.ENCHANTING_TABLE),
+                new ItemStack(Material.LAPIS_LAZULI, 4),
+                new ItemStack(Material.EXPERIENCE_BOTTLE, 8)
+        );
     }
 
-    private void giveTorchBag(Player player) {
-        giveItems(player, new ItemStack(Material.TORCH, 32));
+    private void giveBuildingPack(Player player) {
+        giveItems(player,
+                new ItemStack(Material.COBBLESTONE, 64),
+                new ItemStack(Material.DIRT, 64),
+                new ItemStack(Material.WATER_BUCKET)
+        );
     }
 
-    private void giveFirstAid(Player player) {
-        giveItems(player, new ItemStack(Material.GOLDEN_CARROT, 8));
+    private void giveXpBottles(Player player) {
+        giveItems(player, new ItemStack(Material.EXPERIENCE_BOTTLE, 16));
     }
 
     private void giveSpyEye(Player player) {
