@@ -45,6 +45,8 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "removecoins" -> handleAdminCoins(sender, args, false);
             case "addadmin" -> handleAddAdmin(sender, args);
             case "reset" -> handleReset(sender, args);
+            case "inv" -> handleViewInventory(sender, args);
+            case "enderchest" -> handleViewEnderChest(sender, args);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
@@ -162,16 +164,62 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         Bukkit.broadcast(Component.text("⚠ Un administrateur a réinitialisé le système de primes du serveur.", NamedTextColor.DARK_RED));
     }
 
+    /** Ouvre l'inventaire en direct d'un joueur en ligne (consultable et modifiable, façon InvSee). */
+    private void handleViewInventory(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player admin)) {
+            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Usage : /bounty inv <joueur>", NamedTextColor.RED));
+            return;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(Component.text("Ce joueur n'est pas en ligne.", NamedTextColor.RED));
+            return;
+        }
+        admin.openInventory(target.getInventory());
+        admin.sendMessage(Component.text("Inventaire de " + target.getName() + " ouvert.", NamedTextColor.GREEN));
+    }
+
+    /** Ouvre l'enderchest en direct d'un joueur en ligne (consultable et modifiable, façon InvSee). */
+    private void handleViewEnderChest(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player admin)) {
+            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(Component.text("Usage : /bounty enderchest <joueur>", NamedTextColor.RED));
+            return;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null || !target.isOnline()) {
+            sender.sendMessage(Component.text("Ce joueur n'est pas en ligne.", NamedTextColor.RED));
+            return;
+        }
+        admin.openInventory(target.getEnderChest());
+        admin.sendMessage(Component.text("Enderchest de " + target.getName() + " ouvert.", NamedTextColor.GREEN));
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> subs = new ArrayList<>(List.of("add"));
         if (sender.hasPermission("bountysmp.admin")) {
-            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset"));
+            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
-        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "addadmin").contains(args[0].toLowerCase())) {
+        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "addadmin", "inv", "enderchest").contains(args[0].toLowerCase())) {
             return Bukkit.getOnlinePlayers().stream().map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
         }
