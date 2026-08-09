@@ -26,12 +26,13 @@ import java.util.List;
  * Boutique Bounty : /bounty shop
  * Page 0 = Kits (Kit Fer, Kit Diamant, Kit Netherite)
  * Page 1 = Objets (Tracker, Feu d'artifice, Fiole de Rage, Grenade du Chaos, Élan du Chasseur, Vendre des minerais)
- * Page 2 = Marché Noir (Faux Lingot d'Or, Élixir du Menteur, Œil de Judas, Bourse Trouée)
+ * Page 2 = Marché Noir (Faux Lingot d'Or, Bombe Puante, Bourse Chanceuse, Œil de Judas, Bourse Trouée)
+ * Page 3 = Départ (aide au early-game : kit de survie, provisions, torches, soins)
  * Les objets sont répartis à distances égales dans une grille 4 rangées.
  */
 public class ShopGUI implements Listener {
 
-    private static final int TOTAL_PAGES = 3;
+    private static final int TOTAL_PAGES = 4;
     private static final int INV_SIZE = 36;
 
     /** Marqueur d'identité fiable pour l'inventaire boutique, contient la page affichée. */
@@ -82,7 +83,8 @@ public class ShopGUI implements Listener {
         String title = switch (page) {
             case 0 -> "Boutique - Kits";
             case 1 -> "Boutique - Objets";
-            default -> "Boutique - Marché Noir";
+            case 2 -> "Boutique - Marché Noir";
+            default -> "Boutique - Départ";
         };
         Inventory inv = Bukkit.createInventory(new ShopHolder(page), INV_SIZE, Component.text(title, NamedTextColor.DARK_RED));
 
@@ -90,8 +92,10 @@ public class ShopGUI implements Listener {
             populateKitsPage(inv, data);
         } else if (page == 1) {
             populateItemsPage(inv, data);
-        } else {
+        } else if (page == 2) {
             populateBlackMarketPage(inv, data);
+        } else {
+            populateEarlyGamePage(inv, data);
         }
 
         // Solde du joueur
@@ -185,32 +189,61 @@ public class ShopGUI implements Listener {
 
     private void populateBlackMarketPage(Inventory inv, PlayerData data) {
         int ingotPrice = plugin.getConfig().getInt("shop.fake-ingot-price", 35);
-        int elixirPrice = plugin.getConfig().getInt("shop.decoy-elixir-price", 110);
-        int elixirDuration = plugin.getConfig().getInt("decoy-elixir.duration-seconds", 60);
+        int stinkPrice = plugin.getConfig().getInt("shop.stink-bomb-price", 40);
         int spyPrice = plugin.getConfig().getInt("shop.spy-eye-price", 40);
         int pickpocketPrice = plugin.getConfig().getInt("shop.pickpocket-price", 70);
         int pickpocketAmount = plugin.getConfig().getInt("pickpocket.steal-amount", 15);
+        int pursePrice = plugin.getConfig().getInt("shop.lucky-purse-price", 50);
 
-        // Grille 2x2 également espacée (slots 11, 15 puis 20, 24)
-        inv.setItem(11, buildShopItem(Material.GOLD_NUGGET, "fake_ingot",
+        // Grille également espacée (slots 10, 13, 16 puis 19, 22, 25)
+        inv.setItem(10, buildShopItem(Material.GOLD_NUGGET, "fake_ingot",
                 "§6Faux Lingot d'Or", ingotPrice,
                 List.of("§7Laisse-le traîner au sol :", "§7quiconque le ramasse (sauf toi)",
                         "§7est maudit (lenteur + faiblesse).", "", "§ePrix : " + ingotPrice + " coins")));
 
-        inv.setItem(15, buildShopItem(Material.HONEY_BOTTLE, "decoy_elixir",
-                "§5Élixir du Menteur", elixirPrice,
-                List.of("§7Clic droit : brouille pendant " + elixirDuration + "s", "§7les signaux de tout Tracker",
-                        "§7pointé sur toi.", "", "§ePrix : " + elixirPrice + " coins")));
+        inv.setItem(13, buildShopItem(Material.FERMENTED_SPIDER_EYE, "stink_bomb",
+                "§2Bombe Puante", stinkPrice,
+                List.of("§7Clic droit : lance une bombe qui", "§7donne Nausée + Poison au joueur touché.",
+                        "", "§ePrix : " + stinkPrice + " coins")));
 
-        inv.setItem(20, buildShopItem(Material.ENDER_EYE, "spy_eye",
+        inv.setItem(16, buildShopItem(Material.SUSPICIOUS_STEW, "lucky_purse",
+                "§6Bourse Chanceuse", pursePrice,
+                List.of("§7Clic droit : pari sur des coins,", "§7du jackpot au coup pour rien.",
+                        "§7(objet à usage unique).", "", "§ePrix : " + pursePrice + " coins")));
+
+        inv.setItem(19, buildShopItem(Material.ENDER_EYE, "spy_eye",
                 "§dŒil de Judas", spyPrice,
                 List.of("§7Clic droit : révèle la direction", "§7et la distance approximative du",
                         "§7joueur en ligne le plus proche.", "", "§ePrix : " + spyPrice + " coins")));
 
-        inv.setItem(24, buildShopItem(Material.STRING, "pickpocket",
+        inv.setItem(22, buildShopItem(Material.STRING, "pickpocket",
                 "§eBourse Trouée", pickpocketPrice,
                 List.of("§7Clic droit : vole " + pickpocketAmount + " coins", "§7au joueur en ligne le plus proche",
                         "§7(objet à usage unique).", "", "§ePrix : " + pickpocketPrice + " coins")));
+    }
+
+    private void populateEarlyGamePage(Inventory inv, PlayerData data) {
+        int kitPrice = plugin.getConfig().getInt("shop.survival-kit-price", 15);
+        int rationsPrice = plugin.getConfig().getInt("shop.travel-rations-price", 10);
+        int torchPrice = plugin.getConfig().getInt("shop.torch-bag-price", 8);
+        int aidPrice = plugin.getConfig().getInt("shop.first-aid-price", 20);
+
+        // Rangée également espacée (slots 10, 13, 16, 19 -> réajusté à 11,14,17... on garde 4 slots réguliers)
+        inv.setItem(10, buildShopItem(Material.WOODEN_SWORD, "survival_kit",
+                "§fKit du Survivant", kitPrice,
+                List.of("§7Outils et épée en pierre,", "§7de quoi démarrer vite.", "", "§ePrix : " + kitPrice + " coins")));
+
+        inv.setItem(15, buildShopItem(Material.COOKED_BEEF, "travel_rations",
+                "§6Provisions de Route", rationsPrice,
+                List.of("§7Un bon stock de nourriture", "§7pour ne pas mourir de faim.", "", "§ePrix : " + rationsPrice + " coins")));
+
+        inv.setItem(20, buildShopItem(Material.TORCH, "torch_bag",
+                "§eSac de Torches", torchPrice,
+                List.of("§7De quoi éclairer ta base", "§7et repousser les mobs.", "", "§ePrix : " + torchPrice + " coins")));
+
+        inv.setItem(25, buildShopItem(Material.GOLDEN_CARROT, "first_aid",
+                "§dTrousse de Secours", aidPrice,
+                List.of("§7Carottes dorées pour te", "§7soigner en cas de coup dur.", "", "§ePrix : " + aidPrice + " coins")));
     }
 
     private ItemStack buildShopItem(Material material, String id, String name, int price, List<String> lore) {
@@ -274,9 +307,14 @@ public class ShopGUI implements Listener {
             case "dash_item" -> purchase(player, data, "shop.dash-item-price", 60, this::giveDashItem, purchaseSlot);
             case "rage_vial" -> purchase(player, data, "shop.rage-vial-price", 50, this::giveRageVial, purchaseSlot);
             case "fake_ingot" -> purchase(player, data, "shop.fake-ingot-price", 35, this::giveFakeIngot, purchaseSlot);
-            case "decoy_elixir" -> purchase(player, data, "shop.decoy-elixir-price", 110, this::giveDecoyElixir, purchaseSlot);
+            case "stink_bomb" -> purchase(player, data, "shop.stink-bomb-price", 40, this::giveStinkBomb, purchaseSlot);
+            case "lucky_purse" -> purchase(player, data, "shop.lucky-purse-price", 50, this::giveLuckyPurse, purchaseSlot);
             case "spy_eye" -> purchase(player, data, "shop.spy-eye-price", 40, this::giveSpyEye, purchaseSlot);
             case "pickpocket" -> purchase(player, data, "shop.pickpocket-price", 70, this::givePickpocket, purchaseSlot);
+            case "survival_kit" -> purchase(player, data, "shop.survival-kit-price", 15, this::giveSurvivalKit, purchaseSlot);
+            case "travel_rations" -> purchase(player, data, "shop.travel-rations-price", 10, this::giveTravelRations, purchaseSlot);
+            case "torch_bag" -> purchase(player, data, "shop.torch-bag-price", 8, this::giveTorchBag, purchaseSlot);
+            case "first_aid" -> purchase(player, data, "shop.first-aid-price", 20, this::giveFirstAid, purchaseSlot);
             case "sell_ores" -> sellOres(player, data);
         }
 
@@ -440,16 +478,49 @@ public class ShopGUI implements Listener {
         giveItems(player, item);
     }
 
-    private void giveDecoyElixir(Player player) {
-        NamespacedKey decoyKey = new NamespacedKey(plugin, "bounty_decoy_elixir");
-        ItemStack item = new ItemStack(Material.HONEY_BOTTLE);
+    private void giveStinkBomb(Player player) {
+        NamespacedKey stinkKey = new NamespacedKey(plugin, "bounty_stink_bomb");
+        ItemStack item = new ItemStack(Material.FERMENTED_SPIDER_EYE);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text("§5Élixir du Menteur").decoration(TextDecoration.ITALIC, false));
-        meta.lore(List.of(Component.text("§7Clic droit : brouille les Trackers").decoration(TextDecoration.ITALIC, false),
-                Component.text("§7pointés sur toi pendant un moment.").decoration(TextDecoration.ITALIC, false)));
-        meta.getPersistentDataContainer().set(decoyKey, PersistentDataType.BYTE, (byte) 1);
+        meta.displayName(Component.text("§2Bombe Puante").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : Nausée + Poison").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7au joueur touché.").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(stinkKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         giveItems(player, item);
+    }
+
+    private void giveLuckyPurse(Player player) {
+        NamespacedKey purseKey = new NamespacedKey(plugin, "bounty_lucky_purse");
+        ItemStack item = new ItemStack(Material.SUSPICIOUS_STEW);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("§6Bourse Chanceuse").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(Component.text("§7Clic droit : gain de coins aléatoire").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7(usage unique).").decoration(TextDecoration.ITALIC, false)));
+        meta.getPersistentDataContainer().set(purseKey, PersistentDataType.BYTE, (byte) 1);
+        item.setItemMeta(meta);
+        giveItems(player, item);
+    }
+
+    private void giveSurvivalKit(Player player) {
+        giveItems(player,
+                new ItemStack(Material.STONE_SWORD),
+                new ItemStack(Material.STONE_PICKAXE),
+                new ItemStack(Material.STONE_AXE),
+                new ItemStack(Material.BREAD, 8)
+        );
+    }
+
+    private void giveTravelRations(Player player) {
+        giveItems(player, new ItemStack(Material.COOKED_BEEF, 16));
+    }
+
+    private void giveTorchBag(Player player) {
+        giveItems(player, new ItemStack(Material.TORCH, 32));
+    }
+
+    private void giveFirstAid(Player player) {
+        giveItems(player, new ItemStack(Material.GOLDEN_CARROT, 8));
     }
 
     private void giveSpyEye(Player player) {

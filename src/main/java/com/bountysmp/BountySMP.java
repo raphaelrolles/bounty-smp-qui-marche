@@ -8,13 +8,14 @@ import com.bountysmp.gui.TopGUI;
 import com.bountysmp.gui.WantedGUI;
 import com.bountysmp.listeners.ChaosGrenadeListener;
 import com.bountysmp.listeners.DashItemListener;
-import com.bountysmp.listeners.DecoyElixirListener;
 import com.bountysmp.listeners.FakeIngotListener;
+import com.bountysmp.listeners.LuckyPurseListener;
 import com.bountysmp.listeners.PlayerDeathListener;
 import com.bountysmp.listeners.PickpocketListener;
 import com.bountysmp.listeners.RageVialListener;
 import com.bountysmp.listeners.SmokeBombListener;
 import com.bountysmp.listeners.SpyEyeListener;
+import com.bountysmp.listeners.StinkBombListener;
 import com.bountysmp.listeners.TrackerListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -59,7 +60,8 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DashItemListener(this), this);
         getServer().getPluginManager().registerEvents(new RageVialListener(this), this);
         getServer().getPluginManager().registerEvents(new FakeIngotListener(this), this);
-        getServer().getPluginManager().registerEvents(new DecoyElixirListener(this), this);
+        getServer().getPluginManager().registerEvents(new StinkBombListener(this), this);
+        getServer().getPluginManager().registerEvents(new LuckyPurseListener(this), this);
         getServer().getPluginManager().registerEvents(new SpyEyeListener(this), this);
         getServer().getPluginManager().registerEvents(new PickpocketListener(this), this);
 

@@ -22,7 +22,7 @@ danger:
     5: 100
     10: 250
 
-# Prix de la boutique /bounty shop (tous fortement réduits)
+# Prix de la boutique /bounty shop
 shop:
   tracker-price: 30
   iron-kit-price: 70
@@ -33,18 +33,23 @@ shop:
   dash-item-price: 60
   rage-vial-price: 50
   fake-ingot-price: 35
-  decoy-elixir-price: 110
+  stink-bomb-price: 40
+  lucky-purse-price: 50
   spy-eye-price: 40
   pickpocket-price: 70
+  survival-kit-price: 15
+  travel-rations-price: 10
+  torch-bag-price: 8
+  first-aid-price: 20
 
-# Cooldowns des objets (façon perle d'ender), en secondes
+# Cooldowns des objets (façon perle d'ender), en secondes - raccourcis pour plus de dynamisme
 item-cooldowns:
-  smoke-bomb-seconds: 25
-  dash-item-seconds: 20
-  chaos-grenade-seconds: 20
-  rage-vial-seconds: 25
-  decoy-elixir-seconds: 45
-  spy-eye-seconds: 20
+  smoke-bomb-seconds: 12
+  dash-item-seconds: 10
+  chaos-grenade-seconds: 10
+  rage-vial-seconds: 12
+  stink-bomb-seconds: 10
+  spy-eye-seconds: 10
 
 # Échange de minerais contre des Bounty Coins (taux volontairement défavorable)
 ore-exchange:
@@ -55,7 +60,7 @@ ore-exchange:
 
 # Objet Tracker : cooldown (façon perle d'ender) et imprécision des coordonnées
 tracker:
-  cooldown-seconds: 30
+  cooldown-seconds: 15
   imprecision-blocks: 40
 
 # Fumigène du Fugitif : rayon (en blocs) dans lequel les joueurs proches sont aveuglés
@@ -66,10 +71,6 @@ smoke-bomb:
 dash-item:
   strength: 2.2
 
-# Élixir du Menteur : durée du brouillage du Tracker (en secondes)
-decoy-elixir:
-  duration-seconds: 60
-
 # Œil de Judas : imprécision de la distance annoncée (en %)
 spy-eye:
   imprecision-percent: 20
@@ -78,3 +79,8 @@ spy-eye:
 pickpocket:
   steal-amount: 15
   max-range: 10.0
+
+# Bourse Chanceuse : gain minimum et jackpot (en coins)
+lucky-purse:
+  min-reward: 0
+  jackpot-reward: 300
