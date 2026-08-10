@@ -87,7 +87,7 @@ public class AchievementUtil {
                 + "\"title\":{\"text\":\"" + escape(title) + "\"},"
                 + "\"description\":{\"text\":\"" + escape(description) + "\"},"
                 + "\"frame\":\"" + frame + "\","
-                + "\"announce_to_chat\":false,"
+                + "\"announce_to_chat\":true,"
                 + "\"show_toast\":true,"
                 + "\"hidden\":true"
                 + "}"
