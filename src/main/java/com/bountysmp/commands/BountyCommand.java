@@ -160,7 +160,8 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         plugin.getDataManager().resetAll();
-        sender.sendMessage(Component.text("✅ Toutes les données de BountySMP ont été réinitialisées.", NamedTextColor.GREEN));
+        plugin.getAchievementUtil().resetAllProgress();
+        sender.sendMessage(Component.text("✅ Toutes les données de BountySMP ont été réinitialisées (y compris les succès des joueurs en ligne).", NamedTextColor.GREEN));
         Bukkit.broadcast(Component.text("⚠ Un administrateur a réinitialisé le système de primes du serveur.", NamedTextColor.DARK_RED));
     }
 

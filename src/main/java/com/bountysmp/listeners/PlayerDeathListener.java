@@ -47,6 +47,9 @@ public class PlayerDeathListener implements Listener {
                 killerData.setFirstBountyAchievement(true);
                 plugin.getAchievementUtil().awardFirstBounty(killer);
             }
+            if (killerData.getBountiesClaimed() == 5) {
+                plugin.getAchievementUtil().awardSeasonedHunter(killer);
+            }
 
             Bukkit.broadcast(Component.text("☠ ", NamedTextColor.DARK_RED)
                     .append(Component.text(killer.getName(), NamedTextColor.GOLD))
