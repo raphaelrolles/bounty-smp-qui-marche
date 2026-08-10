@@ -45,7 +45,7 @@ public class PlayerDeathListener implements Listener {
 
             if (!killerData.isFirstBountyAchievement()) {
                 killerData.setFirstBountyAchievement(true);
-                com.bountysmp.util.AchievementUtil.show(killer, "Première Prime", "Tu as encaissé ta première prime !");
+                plugin.getAchievementUtil().awardFirstBounty(killer);
             }
 
             Bukkit.broadcast(Component.text("☠ ", NamedTextColor.DARK_RED)

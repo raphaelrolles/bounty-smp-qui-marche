@@ -19,6 +19,7 @@ import com.bountysmp.listeners.SmokeBombListener;
 import com.bountysmp.listeners.SpyEyeListener;
 import com.bountysmp.listeners.StinkBombListener;
 import com.bountysmp.listeners.TrackerListener;
+import com.bountysmp.util.AchievementUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BountySMP extends JavaPlugin {
@@ -31,6 +32,7 @@ public final class BountySMP extends JavaPlugin {
     private BountyMenuGUI bountyMenuGUI;
     private TopGUI topGUI;
     private SellGUI sellGUI;
+    private AchievementUtil achievementUtil;
 
     @Override
     public void onEnable() {
@@ -46,6 +48,8 @@ public final class BountySMP extends JavaPlugin {
         this.bountyMenuGUI = new BountyMenuGUI(this);
         this.topGUI = new TopGUI(this);
         this.sellGUI = new SellGUI(this);
+        this.achievementUtil = new AchievementUtil(this);
+        this.achievementUtil.registerAdvancements();
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
@@ -111,5 +115,9 @@ public final class BountySMP extends JavaPlugin {
 
     public SellGUI getSellGUI() {
         return sellGUI;
+    }
+
+    public AchievementUtil getAchievementUtil() {
+        return achievementUtil;
     }
 }

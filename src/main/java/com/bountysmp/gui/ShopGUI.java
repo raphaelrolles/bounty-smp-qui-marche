@@ -329,7 +329,7 @@ public class ShopGUI implements Listener {
 
         if (!data.isFirstPurchaseAchievement()) {
             data.setFirstPurchaseAchievement(true);
-            com.bountysmp.util.AchievementUtil.show(player, "Premier Achat", "Tu as fait tes premières emplettes en Bounty Coins.");
+            plugin.getAchievementUtil().awardFirstPurchase(player);
         }
     }
 
