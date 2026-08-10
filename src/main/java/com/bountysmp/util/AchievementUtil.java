@@ -52,7 +52,7 @@ public class AchievementUtil {
         String json = "{"
                 + "\"criteria\":{\"trigger\":{\"trigger\":\"minecraft:impossible\"}},"
                 + "\"display\":{"
-                + "\"icon\":{\"item\":\"" + itemKey + "\"},"
+                + "\"icon\":\"" + itemKey + "\","
                 + "\"title\":{\"text\":\"" + escape(title) + "\"},"
                 + "\"description\":{\"text\":\"" + escape(description) + "\"},"
                 + "\"frame\":\"" + frame + "\","
