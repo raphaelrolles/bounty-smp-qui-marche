@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -42,6 +43,13 @@ public class ShopGUI implements Listener {
     }
 
     private final BountySMP plugin;
+
+    /** Retour visuel affiché dans l'inventaire (l'action bar est cachée derrière un menu ouvert). */
+    private record Flash(int slot, boolean success, String text) {
+    }
+
+    private final java.util.Map<java.util.UUID, Flash> pendingFlash = new java.util.HashMap<>();
+    private String currentItemId = "";
     private final NamespacedKey shopItemKey;
     private final NamespacedKey trackerKey;
     private final NamespacedKey smokeBombKey;
@@ -129,6 +137,12 @@ public class ShopGUI implements Listener {
         inv.setItem(13, buildShopItem(Material.DIAMOND_CHESTPLATE, "diamond_kit",
                 "§bKit Diamant", diamondPrice,
                 List.of("§7Armure diamant complète,", "§7épée et pioche en diamant.", "", "§ePrix : " + diamondPrice + " coins")));
+
+        int hunterPrice = plugin.getConfig().getInt("shop.hunter-kit-price", 120);
+        inv.setItem(19, buildShopItem(Material.BOW, "hunter_kit",
+                "§aKit Chasseur de Primes", hunterPrice,
+                List.of("§7Armure en mailles complète,", "§7arc Puissance III + Frappe I,",
+                        "§764 flèches et de quoi manger.", "", "§ePrix : " + hunterPrice + " coins")));
 
         inv.setItem(16, buildShopItem(Material.NETHERITE_CHESTPLATE, "netherite_kit",
                 "§4Kit Netherite", netheritePrice,
@@ -273,25 +287,30 @@ public class ShopGUI implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         if (id.equals("nav_prev")) {
+            Sfx.click(player);
             open(player, holder.page - 1);
             return;
         }
         if (id.equals("nav_next")) {
+            Sfx.click(player);
             open(player, holder.page + 1);
             return;
         }
         if (id.equals("back_menu")) {
+            Sfx.click(player);
             plugin.getBountyMenuGUI().open(player);
             return;
         }
 
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         int purchaseSlot = event.getSlot();
+        currentItemId = id;
 
         switch (id) {
             case "iron_kit" -> purchase(player, data, "shop.iron-kit-price", 70, this::giveIronKit, purchaseSlot);
             case "diamond_kit" -> purchase(player, data, "shop.diamond-kit-price", 220, this::giveDiamondKit, purchaseSlot);
             case "netherite_kit" -> purchase(player, data, "shop.netherite-kit-price", 800, this::giveNetheriteKit, purchaseSlot);
+            case "hunter_kit" -> purchase(player, data, "shop.hunter-kit-price", 120, this::giveHunterKit, purchaseSlot);
             case "tracker" -> purchase(player, data, "shop.tracker-price", 30, this::giveTracker, purchaseSlot);
             case "smoke_bomb" -> purchase(player, data, "shop.smoke-bomb-price", 45, this::giveSmokeBomb, purchaseSlot);
             case "chaos_grenade" -> purchase(player, data, "shop.chaos-grenade-price", 70, this::giveChaosGrenade, purchaseSlot);
@@ -309,7 +328,13 @@ public class ShopGUI implements Listener {
         }
 
         // Rafraîchit l'affichage au tick suivant (solde à jour)
-        Bukkit.getScheduler().runTask(plugin, () -> open(player, holder.page));
+        Flash flash = pendingFlash.remove(player.getUniqueId());
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            open(player, holder.page);
+            if (flash != null) {
+                applyFlash(player, flash);
+            }
+        });
     }
 
     private interface Rewarder {
@@ -319,13 +344,17 @@ public class ShopGUI implements Listener {
     private void purchase(Player player, PlayerData data, String configPath, int defaultPrice, Rewarder rewarder, int slot) {
         int price = plugin.getConfig().getInt(configPath, defaultPrice);
         if (data.getCoins() < price) {
-            player.sendMessage(Component.text("Tu n'as pas assez de Bounty Coins (" + (long) data.getCoins() + "/" + price + ").", NamedTextColor.RED));
+            player.sendActionBar(Component.text("Pas assez de Bounty Coins (" + (long) data.getCoins() + "/" + price + ").", NamedTextColor.RED));
+            Sfx.denied(player);
+            pendingFlash.put(player.getUniqueId(), new Flash(slot, false, "§c✘ Pas assez de coins (" + (long) data.getCoins() + "/" + price + ")"));
             return;
         }
         data.addCoins(-price);
+        // message AVANT la remise des objets : si l'inventaire est plein, l'avertissement qui suit reste visible
+        player.sendActionBar(Component.text("Achat effectué : -" + price + " coins", NamedTextColor.GREEN));
         rewarder.give(player);
-        player.sendMessage(Component.text("Achat effectué pour " + price + " coins !", NamedTextColor.GREEN));
         playPurchaseAnimation(player);
+        pendingFlash.put(player.getUniqueId(), new Flash(slot, true, "§a✔ Acheté ! §7(-" + price + " coins)"));
 
         if (!data.isFirstPurchaseAchievement()) {
             data.setFirstPurchaseAchievement(true);
@@ -333,10 +362,30 @@ public class ShopGUI implements Listener {
         }
     }
 
-    /** Petite animation/feedback visuel + sonore à l'achat. */
+    /** Petite animation/feedback visuel + sonore à l'achat (le son dépend de l'objet acheté). */
     private void playPurchaseAnimation(Player player) {
-        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+        Sfx.shopSuccess(plugin, player, currentItemId);
         player.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, player.getEyeLocation(), 12, 0.3, 0.3, 0.3, 0);
+    }
+
+    /** Remplace brièvement l'objet cliqué par une vitre verte/rouge pour confirmer l'achat ou signaler l'échec. */
+    private void applyFlash(Player player, Flash flash) {
+        Inventory top = player.getOpenInventory().getTopInventory();
+        if (!(top.getHolder() instanceof ShopHolder)) return;
+
+        ItemStack original = top.getItem(flash.slot());
+        ItemStack pane = new ItemStack(flash.success() ? Material.LIME_STAINED_GLASS_PANE : Material.RED_STAINED_GLASS_PANE);
+        ItemMeta meta = pane.getItemMeta();
+        meta.displayName(Component.text(flash.text()).decoration(TextDecoration.ITALIC, false));
+        pane.setItemMeta(meta);
+        top.setItem(flash.slot(), pane);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Inventory current = player.getOpenInventory().getTopInventory();
+            if (current.equals(top)) {
+                current.setItem(flash.slot(), original);
+            }
+        }, 30L);
     }
 
     /**
@@ -349,7 +398,7 @@ public class ShopGUI implements Listener {
             for (ItemStack leftover : leftovers.values()) {
                 player.getWorld().dropItem(player.getLocation(), leftover);
             }
-            player.sendMessage(Component.text("⚠ Ton inventaire était plein, certains objets sont tombés au sol.", NamedTextColor.YELLOW));
+            player.sendActionBar(Component.text("⚠ Ton inventaire était plein, certains objets sont tombés au sol.", NamedTextColor.YELLOW));
         }
     }
 
@@ -507,6 +556,23 @@ public class ShopGUI implements Listener {
         meta.getPersistentDataContainer().set(dashKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
         giveItems(player, item);
+    }
+
+    private void giveHunterKit(Player player) {
+        ItemStack bow = new ItemStack(Material.BOW);
+        ItemMeta bowMeta = bow.getItemMeta();
+        bowMeta.addEnchant(org.bukkit.enchantments.Enchantment.POWER, 3, true);
+        bowMeta.addEnchant(org.bukkit.enchantments.Enchantment.PUNCH, 1, true);
+        bow.setItemMeta(bowMeta);
+        giveItems(player,
+                new ItemStack(Material.CHAINMAIL_HELMET),
+                new ItemStack(Material.CHAINMAIL_CHESTPLATE),
+                new ItemStack(Material.CHAINMAIL_LEGGINGS),
+                new ItemStack(Material.CHAINMAIL_BOOTS),
+                bow,
+                new ItemStack(Material.ARROW, 64),
+                new ItemStack(Material.COOKED_BEEF, 16)
+        );
     }
 
     private void giveIronKit(Player player) {

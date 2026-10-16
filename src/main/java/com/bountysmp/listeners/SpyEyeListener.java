@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -53,7 +54,8 @@ public class SpyEyeListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(Material.ENDER_EYE)) {
-            player.sendMessage(Component.text("L'Œil de Judas recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("L'Œil de Judas recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
 
@@ -62,12 +64,14 @@ public class SpyEyeListener implements Listener {
                 .min(Comparator.comparingDouble(p -> p.getLocation().distanceSquared(player.getLocation())));
 
         if (nearest.isEmpty()) {
-            player.sendMessage(Component.text("Aucun autre joueur n'est présent dans ton monde.", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("Aucun autre joueur n'est présent dans ton monde.", NamedTextColor.GRAY));
+            Sfx.denied(player);
             return;
         }
 
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.spy-eye-seconds", 20);
         player.setCooldown(Material.ENDER_EYE, cooldownSeconds * 20);
+        Sfx.spyEye(plugin, player);
 
         Player target = nearest.get();
         Location from = player.getLocation();
@@ -86,7 +90,7 @@ public class SpyEyeListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("👁 L'Œil de Judas frémit : quelqu'un se trouve ", NamedTextColor.LIGHT_PURPLE)
+        player.sendActionBar(Component.text("👁 Présence détectée à ", NamedTextColor.LIGHT_PURPLE)
                 .append(Component.text("~" + approxDistance + " blocs", NamedTextColor.YELLOW))
                 .append(Component.text(" au ", NamedTextColor.LIGHT_PURPLE))
                 .append(Component.text(direction, NamedTextColor.GOLD))

@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -57,7 +58,8 @@ public class PickpocketListener implements Listener {
                 .min(Comparator.comparingDouble(p -> p.getLocation().distanceSquared(player.getLocation())));
 
         if (nearest.isEmpty()) {
-            player.sendMessage(Component.text("Personne d'assez proche pour être délesté (" + (int) maxRange + " blocs max).", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("Personne d'assez proche pour être délesté (" + (int) maxRange + " blocs max).", NamedTextColor.GRAY));
+            Sfx.denied(player);
             return;
         }
 
@@ -77,17 +79,20 @@ public class PickpocketListener implements Listener {
         }
 
         if (stolen <= 0) {
-            player.sendMessage(Component.text("La bourse de " + target.getName() + " est vide... Coup pour rien.", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("La bourse de " + target.getName() + " est vide... Coup pour rien.", NamedTextColor.GRAY));
+            Sfx.denied(player);
             return;
         }
 
         targetData.addCoins(-stolen);
         playerData.addCoins(stolen);
+        Sfx.coins(plugin, player);
+        Sfx.robbed(target);
 
-        player.sendMessage(Component.text("🤏 Tu as volé ", NamedTextColor.YELLOW)
+        player.sendActionBar(Component.text("🤏 Tu as volé ", NamedTextColor.YELLOW)
                 .append(Component.text(stolen + " coins", NamedTextColor.GOLD))
                 .append(Component.text(" à " + target.getName() + " !", NamedTextColor.YELLOW)));
-        target.sendMessage(Component.text("🤏 On vient de te voler ", NamedTextColor.RED)
+        target.sendActionBar(Component.text("🤏 On vient de te voler ", NamedTextColor.RED)
                 .append(Component.text(stolen + " coins", NamedTextColor.GOLD))
                 .append(Component.text(" !", NamedTextColor.RED)));
     }

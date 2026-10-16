@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.NamespacedKey;
@@ -57,6 +58,7 @@ public class FakeIngotListener implements Listener {
         picker.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 10, 1));
         picker.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 10, 1));
         picker.getWorld().spawnParticle(org.bukkit.Particle.SMOKE, picker.getLocation().add(0, 1, 0), 20, 0.3, 0.5, 0.3, 0.02);
-        picker.sendMessage(Component.text("💰 Ce lingot était un piège du Marché Noir... Tu es maudit !", NamedTextColor.DARK_RED));
+        Sfx.curse(picker.getLocation());
+        picker.sendActionBar(Component.text("💰 Ce lingot était un piège du Marché Noir... Tu es maudit !", NamedTextColor.DARK_RED));
     }
 }

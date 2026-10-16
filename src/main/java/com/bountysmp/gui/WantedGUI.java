@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -113,6 +114,7 @@ public class WantedGUI implements Listener {
         // Bouton retour
         String action = clicked.getItemMeta().getPersistentDataContainer().get(actionKey, PersistentDataType.STRING);
         if ("back".equals(action)) {
+            Sfx.click(player);
             plugin.getBountyMenuGUI().open(player);
             return;
         }
@@ -124,7 +126,10 @@ public class WantedGUI implements Listener {
         if (meta.getOwningPlayer() == null) return;
 
         if (!plugin.getShopGUI().hasTracker(player)) {
-            player.sendMessage(Component.text("Tu as besoin d'un Tracker pour cibler un joueur (achète-le en boutique).", NamedTextColor.RED));
+            // l'inventaire ouvert cacherait l'action bar : on le ferme puis on affiche l'info
+            Sfx.denied(player);
+            player.closeInventory();
+            player.sendActionBar(Component.text("Il te faut un Tracker pour cibler un joueur (achète-le en boutique).", NamedTextColor.RED));
             return;
         }
 
@@ -133,7 +138,8 @@ public class WantedGUI implements Listener {
         data.setTrackerTarget(targetUuid);
 
         String targetName = meta.getOwningPlayer().getName() != null ? meta.getOwningPlayer().getName() : "ce joueur";
-        player.sendMessage(Component.text("🎯 Tu traques désormais ", NamedTextColor.GOLD)
+        Sfx.trackerLocked(player);
+        player.sendActionBar(Component.text("🎯 Tu traques désormais ", NamedTextColor.GOLD)
                 .append(Component.text(targetName, NamedTextColor.RED))
                 .append(Component.text(" avec ton Tracker.", NamedTextColor.GOLD)));
         player.closeInventory();

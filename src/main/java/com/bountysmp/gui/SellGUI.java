@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -41,7 +42,7 @@ public class SellGUI implements Listener {
         Inventory inv = Bukkit.createInventory(new SellHolder(), 27,
                 Component.text("Vendre des minerais - Ferme pour valider", NamedTextColor.GOLD));
         player.openInventory(inv);
-        player.sendMessage(Component.text("Dépose tes minerais ici, puis ferme l'inventaire (touche Échap) pour toucher tes coins.", NamedTextColor.YELLOW));
+        Sfx.sellOpen(player);
     }
 
     private long currentEpochDay() {
@@ -64,7 +65,8 @@ public class SellGUI implements Listener {
         if (data.getOreExchangesToday() >= dailyLimit) {
             // Rend tout le contenu, la limite quotidienne est atteinte
             returnAllContents(player, event.getInventory());
-            player.sendMessage(Component.text("Tu as atteint la limite quotidienne de ventes (" + dailyLimit + "/jour). Objets rendus.", NamedTextColor.RED));
+            player.sendActionBar(Component.text("Limite quotidienne de ventes atteinte (" + dailyLimit + "/jour). Objets rendus.", NamedTextColor.RED));
+            Sfx.denied(player);
             return;
         }
 
@@ -107,10 +109,11 @@ public class SellGUI implements Listener {
             detail.append(entry.getValue()).append(" ").append(prettyName(entry.getKey()));
         }
 
-        player.sendMessage(Component.text("💰 Vendu : ", NamedTextColor.GREEN)
-                .append(Component.text(detail.toString(), NamedTextColor.AQUA))
-                .append(Component.text(" contre " + (long) total + " coins !", NamedTextColor.GREEN)));
-        player.sendMessage(Component.text("Ventes restantes aujourd'hui : " + (dailyLimit - data.getOreExchangesToday()), NamedTextColor.GRAY));
+        String detailText = detail.length() <= 28 ? " (" + detail + ")" : "";
+        player.sendActionBar(Component.text("💰 +" + (long) total + " coins", NamedTextColor.GREEN)
+                .append(Component.text(detailText, NamedTextColor.AQUA))
+                .append(Component.text("  •  ventes restantes : " + (dailyLimit - data.getOreExchangesToday()), NamedTextColor.GRAY)));
+        Sfx.sellDone(plugin, player);
     }
 
     private void returnAllContents(Player player, Inventory inv) {

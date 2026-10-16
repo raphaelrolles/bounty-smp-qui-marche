@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -143,9 +144,13 @@ public class LuckyPurseListener implements Listener {
                     inv.setItem(i, tierItem(reel[targetPos - 4 + i]));
                 }
                 inv.setItem(4, highlight(tierItem(resultTier)));
-                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.4f);
+                switch (resultTier) {
+                    case JACKPOT -> Sfx.purseJackpot(plugin, player);
+                    case NOTHING -> Sfx.purseEmpty(plugin, player);
+                    default -> Sfx.purseWin(plugin, player);
+                }
             }
-            resolveReward(player, resultTier, reward);
+            resolveReward(player, resultTier, reward, stillViewing);
 
             if (stillViewing) {
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -171,23 +176,24 @@ public class LuckyPurseListener implements Listener {
                 () -> runFrame(player, inv, reel, frame + 1, totalFrames, resultTier, reward), delay);
     }
 
-    private void resolveReward(Player player, Tier resultTier, int reward) {
+    private void resolveReward(Player player, Tier resultTier, int reward, boolean stillViewing) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         if (reward > 0) {
             data.addCoins(reward);
         }
-        String message = switch (resultTier) {
-            case JACKPOT -> "🎉 JACKPOT ! Tu trouves ";
-            case NOTHING -> null;
-            case SMALL -> "💰 Tu trouves ";
+        Component message = switch (resultTier) {
+            case JACKPOT -> Component.text("🎉 JACKPOT ! +" + reward + " coins dans la bourse !", NamedTextColor.GOLD);
+            case NOTHING -> Component.text("😕 La bourse était vide, tu ne gagnes rien.", NamedTextColor.GRAY);
+            case SMALL -> Component.text("💰 +" + reward + " coins dans la bourse !", NamedTextColor.YELLOW);
         };
-        if (message != null) {
-            player.sendMessage(Component.text(message, NamedTextColor.GOLD)
-                    .append(Component.text(reward + " coins", NamedTextColor.YELLOW))
-                    .append(Component.text(" dans la bourse !", NamedTextColor.GOLD)));
-        } else {
-            player.sendMessage(Component.text("😕 La bourse était vide, tu ne gagnes rien.", NamedTextColor.GRAY));
-        }
+        // Si le joueur regarde encore l'animation, l'inventaire cache l'action bar :
+        // on attend sa fermeture (~2 s) avant d'afficher le résultat.
+        long delay = stillViewing ? 44L : 0L;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
+                player.sendActionBar(message);
+            }
+        }, delay);
     }
 
     private Tier randomTier() {

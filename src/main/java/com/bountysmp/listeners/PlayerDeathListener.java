@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -38,10 +39,13 @@ public class PlayerDeathListener implements Listener {
 
         // --- 1. Le tué avait-il une prime ? ---
         double bountyOnVictim = victimData.getBounty();
+        Component gain;
         if (bountyOnVictim > 0) {
             killerData.addCoins(bountyOnVictim);
             killerData.incrementBountiesClaimed();
             victimData.clearBounty();
+            gain = Component.text("☠ Prime encaissée : +" + (long) bountyOnVictim + " coins", NamedTextColor.GOLD);
+            Sfx.bountyClaimed(plugin, killer);
 
             if (!killerData.isFirstBountyAchievement()) {
                 killerData.setFirstBountyAchievement(true);
@@ -61,14 +65,16 @@ public class PlayerDeathListener implements Listener {
             // --- 2. Kill normal : récompense de base, avec anti-farm ---
             double reward = computeKillReward(killerData, victim.getUniqueId());
             killerData.addCoins(reward);
-            killer.sendMessage(Component.text("+ " + (long) reward + " Bounty Coins ", NamedTextColor.GREEN)
-                    .append(Component.text("(kill sur " + victim.getName() + ")", NamedTextColor.GRAY)));
+            gain = Component.text("+" + (long) reward + " coins ", NamedTextColor.GREEN)
+                    .append(Component.text("(kill sur " + victim.getName() + ")", NamedTextColor.GRAY));
+            Sfx.killReward(killer);
         }
 
         // --- 3. Système de danger automatique ---
         applyDangerSystem(killer, killerData);
 
-        killer.sendMessage(Component.text("Coins : ", NamedTextColor.GRAY)
+        killer.sendActionBar(gain
+                .append(Component.text("  •  Solde : ", NamedTextColor.DARK_GRAY))
                 .append(Component.text((long) killerData.getCoins(), NamedTextColor.YELLOW)));
     }
 
@@ -141,6 +147,7 @@ public class PlayerDeathListener implements Listener {
                         .append(Component.text(" devient de plus en plus dangereux ! ", NamedTextColor.GRAY))
                         .append(Component.text("Prime +" + (long) bonus, NamedTextColor.YELLOW))
                         .append(Component.text(" (total : " + (long) killerData.getBounty() + " coins)", NamedTextColor.GRAY)));
+                Sfx.danger();
             }
         }
     }

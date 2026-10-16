@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -102,6 +103,7 @@ public class TopGUI implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         if ("back".equals(id)) {
+            Sfx.click(player);
             plugin.getBountyMenuGUI().open(player);
         }
     }

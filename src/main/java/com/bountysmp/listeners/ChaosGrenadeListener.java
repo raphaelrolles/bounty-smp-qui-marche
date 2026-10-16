@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -67,7 +68,8 @@ public class ChaosGrenadeListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(Material.SNOWBALL)) {
-            player.sendMessage(Component.text("La Grenade du Chaos recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("La Grenade du Chaos recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.chaos-grenade-seconds", 20);
@@ -75,6 +77,7 @@ public class ChaosGrenadeListener implements Listener {
 
         Snowball snowball = player.launchProjectile(Snowball.class, player.getLocation().getDirection().multiply(1.4));
         snowball.setMetadata(METADATA_KEY, new FixedMetadataValue(plugin, true));
+        Sfx.grenadeThrow(player.getLocation());
 
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
@@ -82,7 +85,7 @@ public class ChaosGrenadeListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("💥 Grenade du Chaos lancée !", NamedTextColor.LIGHT_PURPLE));
+        player.sendActionBar(Component.text("💥 Grenade du Chaos lancée !", NamedTextColor.LIGHT_PURPLE));
     }
 
     @EventHandler
@@ -93,9 +96,10 @@ public class ChaosGrenadeListener implements Listener {
         PotionEffectType effect = EFFECTS.get(ThreadLocalRandom.current().nextInt(EFFECTS.size()));
         target.addPotionEffect(new PotionEffect(effect, 20 * 5, 1));
         target.getWorld().spawnParticle(org.bukkit.Particle.WITCH, target.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.05);
+        Sfx.grenadeHit(target.getLocation());
 
         if (target instanceof Player targetPlayer) {
-            targetPlayer.sendMessage(Component.text("💥 Tu es touché par une Grenade du Chaos : ", NamedTextColor.LIGHT_PURPLE)
+            targetPlayer.sendActionBar(Component.text("💥 Tu es touché par une Grenade du Chaos : ", NamedTextColor.LIGHT_PURPLE)
                     .append(Component.text(effect.getKey().getKey(), NamedTextColor.DARK_PURPLE)));
         }
     }

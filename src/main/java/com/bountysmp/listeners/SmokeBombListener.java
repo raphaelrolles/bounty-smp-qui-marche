@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -46,7 +47,8 @@ public class SmokeBombListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(org.bukkit.Material.FIREWORK_ROCKET)) {
-            player.sendMessage(Component.text("Le Feu d'Artifice recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("Le Feu d'Artifice recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.smoke-bomb-seconds", 25);
@@ -64,6 +66,7 @@ public class SmokeBombListener implements Listener {
         }
 
         player.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, player.getLocation().add(0, 1, 0), 40, 0.5, 1, 0.5, 0.02);
+        Sfx.smokeBomb(plugin, player);
 
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
@@ -71,6 +74,6 @@ public class SmokeBombListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("💨 Tu disparais dans la fumée pendant 10 secondes...", NamedTextColor.GRAY));
+        player.sendActionBar(Component.text("💨 Tu disparais dans la fumée pendant 10 secondes...", NamedTextColor.GRAY));
     }
 }

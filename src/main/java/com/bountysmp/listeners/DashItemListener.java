@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -53,7 +54,8 @@ public class DashItemListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(Material.FEATHER)) {
-            player.sendMessage(Component.text("L'Élan du Chasseur recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("L'Élan du Chasseur recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.dash-item-seconds", 20);
@@ -67,7 +69,7 @@ public class DashItemListener implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 20 * 3, 0));
 
         player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 20, 0.3, 0.1, 0.3, 0.05);
-        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 0.6f, 1.6f);
+        Sfx.dash(plugin, player);
 
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
@@ -75,6 +77,6 @@ public class DashItemListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("💨 Élan !", NamedTextColor.AQUA));
+        player.sendActionBar(Component.text("💨 Élan !", NamedTextColor.AQUA));
     }
 }

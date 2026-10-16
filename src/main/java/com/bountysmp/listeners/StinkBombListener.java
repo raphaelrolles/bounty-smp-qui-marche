@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -57,7 +58,8 @@ public class StinkBombListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(Material.FERMENTED_SPIDER_EYE)) {
-            player.sendMessage(Component.text("La Bombe Puante recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("La Bombe Puante recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.stink-bomb-seconds", 12);
@@ -65,6 +67,7 @@ public class StinkBombListener implements Listener {
 
         Egg egg = player.launchProjectile(Egg.class, player.getLocation().getDirection().multiply(1.4));
         egg.setMetadata(METADATA_KEY, new FixedMetadataValue(plugin, true));
+        Sfx.stinkThrow(player.getLocation());
 
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
@@ -72,7 +75,7 @@ public class StinkBombListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("🤢 Bombe Puante lancée !", NamedTextColor.DARK_GREEN));
+        player.sendActionBar(Component.text("🤢 Bombe Puante lancée !", NamedTextColor.DARK_GREEN));
     }
 
     @EventHandler
@@ -90,9 +93,10 @@ public class StinkBombListener implements Listener {
         target.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 20 * 10, 0));
         target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 20 * 5, 0));
         target.getWorld().spawnParticle(org.bukkit.Particle.ITEM_SLIME, target.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.05);
+        Sfx.stinkHit(target.getLocation());
 
         if (target instanceof Player targetPlayer) {
-            targetPlayer.sendMessage(Component.text("🤢 Une Bombe Puante t'a touché... Beurk.", NamedTextColor.DARK_GREEN));
+            targetPlayer.sendActionBar(Component.text("🤢 Une Bombe Puante t'a touché... Beurk.", NamedTextColor.DARK_GREEN));
         }
     }
 }

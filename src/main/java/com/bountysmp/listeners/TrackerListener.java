@@ -1,6 +1,8 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Msg;
+import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -56,6 +58,7 @@ public class TrackerListener implements Listener {
 
         // Clic droit + Maj : (ré)ouvrir le sélecteur de cible
         if (player.isSneaking() || data.getTrackerTarget() == null) {
+            Sfx.trackerOpen(player);
             plugin.getWantedGUI().open(player);
             return;
         }
@@ -70,12 +73,14 @@ public class TrackerListener implements Listener {
 
         Player onlineTarget = Bukkit.getPlayer(targetUuid);
         if (onlineTarget == null || !onlineTarget.isOnline()) {
-            player.sendMessage(Component.text(targetName + " n'est plus en ligne. Reclique en Maj pour choisir une nouvelle cible.", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text(targetName + " n'est plus en ligne. Reclique en Maj pour choisir une nouvelle cible.", NamedTextColor.GRAY));
+            Sfx.denied(player);
             return;
         }
 
         if (player.hasCooldown(Material.COMPASS)) {
-            player.sendMessage(Component.text("Le Tracker recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("Le Tracker recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
 
@@ -89,10 +94,12 @@ public class TrackerListener implements Listener {
         int approxX = (int) (Math.round((loc.getX() + jitterX) / 10.0) * 10);
         int approxZ = (int) (Math.round((loc.getZ() + jitterZ) / 10.0) * 10);
 
-        player.sendMessage(Component.text("📡 Signal du Tracker sur ", NamedTextColor.GOLD)
+        // Une seule ligne au-dessus de la barre d'XP, maintenue ~10 s pour avoir le temps de la lire
+        Msg.sustain(plugin, player, Component.text("📡 ", NamedTextColor.GOLD)
                 .append(Component.text(targetName, NamedTextColor.RED))
-                .append(Component.text(" (" + loc.getWorld().getName() + ") : ", NamedTextColor.GRAY))
-                .append(Component.text("X ≈ " + approxX + ", Z ≈ " + approxZ, NamedTextColor.YELLOW)));
-        player.sendMessage(Component.text("(coordonnées imprécises — prochain signal dans " + cooldownSeconds + "s)", NamedTextColor.DARK_GRAY));
+                .append(Component.text(" ≈ ", NamedTextColor.GRAY))
+                .append(Component.text("X " + approxX + "   Z " + approxZ, NamedTextColor.YELLOW))
+                .append(Component.text("  (" + loc.getWorld().getName() + ", imprécis)", NamedTextColor.DARK_GRAY)), 10);
+        Sfx.trackerPing(plugin, player);
     }
 }

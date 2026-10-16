@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -46,7 +47,8 @@ public class RageVialListener implements Listener {
         Player player = event.getPlayer();
 
         if (player.hasCooldown(Material.POTION)) {
-            player.sendMessage(Component.text("La Fiole de Rage recharge encore...", NamedTextColor.GRAY));
+            player.sendActionBar(Component.text("La Fiole de Rage recharge encore...", NamedTextColor.GRAY));
+            Sfx.cooldown(player);
             return;
         }
 
@@ -56,7 +58,7 @@ public class RageVialListener implements Listener {
         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 15, 0));
         player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 15, 0));
         player.getWorld().spawnParticle(org.bukkit.Particle.FLAME, player.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.02);
-        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_BLAZE_SHOOT, 0.8f, 1.2f);
+        Sfx.rage(plugin, player);
 
         if (item.getAmount() > 1) {
             item.setAmount(item.getAmount() - 1);
@@ -64,6 +66,6 @@ public class RageVialListener implements Listener {
             player.getInventory().removeItem(item);
         }
 
-        player.sendMessage(Component.text("🔥 Tu sens la rage monter en toi (Force + Résistance au feu, 15s).", NamedTextColor.GOLD));
+        player.sendActionBar(Component.text("🔥 Tu sens la rage monter en toi (Force + Résistance au feu, 15s).", NamedTextColor.GOLD));
     }
 }
