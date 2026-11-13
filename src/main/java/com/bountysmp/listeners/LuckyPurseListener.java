@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -111,7 +112,7 @@ public class LuckyPurseListener implements Listener {
 
     /** Animation façon "ouverture de caisse" : un bandeau d'icônes défile et ralentit jusqu'à s'arrêter sur le résultat. */
     private void playCaseOpeningAnimation(Player player, Tier resultTier, int reward) {
-        Inventory inv = Bukkit.createInventory(new ReelHolder(), 9, Component.text("🎰 Bourse Chanceuse", NamedTextColor.GOLD));
+        Inventory inv = Bukkit.createInventory(new ReelHolder(), 9, GuiTitle.of(plugin, GuiTitle.REEL, "🎰 Bourse Chanceuse", NamedTextColor.GOLD));
 
         int frames = 26;
         int reelLength = frames + 9;

@@ -1,6 +1,8 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.GuiTitle;
+import com.bountysmp.util.Icons;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -42,7 +44,7 @@ public class TopGUI implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(new TopHolder(), 27, Component.text("Top Chasseurs", NamedTextColor.DARK_RED));
+        Inventory inv = Bukkit.createInventory(new TopHolder(), 27, GuiTitle.of(plugin, GuiTitle.TOP, "Top Chasseurs", NamedTextColor.DARK_RED));
 
         List<PlayerData> candidates = plugin.getDataManager().topHunters(50);
         int slot = 10;
@@ -79,9 +81,8 @@ public class TopGUI implements Listener {
             inv.setItem(13, empty);
         }
 
-        ItemStack back = new ItemStack(Material.BARRIER);
+        ItemStack back = Icons.gui(plugin, Icons.BACK, Material.BARRIER, "§7« Retour au menu", null);
         ItemMeta backMeta = back.getItemMeta();
-        backMeta.displayName(Component.text("§7« Retour au menu").decoration(TextDecoration.ITALIC, false));
         backMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "back");
         back.setItemMeta(backMeta);
         inv.setItem(22, back);

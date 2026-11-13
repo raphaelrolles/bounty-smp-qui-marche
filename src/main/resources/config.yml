@@ -38,10 +38,7 @@ shop:
   lucky-purse-price: 50
   spy-eye-price: 40
   pickpocket-price: 70
-  builder-kit-price: 30
-  farmer-kit-price: 25
-  explorer-kit-price: 45
-  toolbox-price: 35
+  recall-stone-price: 60
 
 # Cooldowns des objets (façon perle d'ender), en secondes - courts pour plus de dynamisme
 item-cooldowns:
@@ -51,6 +48,7 @@ item-cooldowns:
   rage-vial-seconds: 12
   stink-bomb-seconds: 10
   spy-eye-seconds: 10
+  recall-stone-seconds: 20
 
 # Échange de minerais contre des Bounty Coins (via /sell) - taux généreux, limite quotidienne large
 ore-exchange:
@@ -87,3 +85,28 @@ pickpocket:
 lucky-purse:
   min-reward: 0
   jackpot-reward: 300
+
+# Resource pack (BountySMP-ResourcePack.zip) : textures des items et fonds des menus.
+# Mets false pour revenir à des menus/icônes vanilla (si tu n'utilises pas le pack).
+resource-pack:
+  enabled: true
+
+# Renouvellement des quêtes et des offres du jour (à minuit dans ce fuseau horaire)
+daily:
+  timezone: "Europe/Paris"
+
+# Quêtes quotidiennes (3 par jour : facile / moyenne / difficile) + bonus si les 3 sont finies
+quests:
+  reward-easy: 30
+  reward-medium: 60
+  reward-hard: 120
+  bonus-reward: 50
+
+# Offres du jour (page 4 de la boutique) : réduction aléatoire entre ces bornes (multiples de 5)
+deals:
+  min-discount: 25
+  max-discount: 50
+
+# Pierre de Rappel : secondes d'immobilité avant le retour au lit (ou au spawn)
+recall-stone:
+  channel-seconds: 8

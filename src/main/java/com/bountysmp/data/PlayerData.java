@@ -54,6 +54,16 @@ public class PlayerData {
     // Timestamp (ms) jusqu'auquel les signaux du Tracker sur ce joueur sont brouillés (Élixir du Menteur)
     private long decoyUntil = 0L;
 
+    // Quêtes quotidiennes : progression par type de quête, récompenses déjà reçues
+    private long questsEpochDay = -1L;
+    private final Map<String, Integer> questProgress = new HashMap<>();
+    private final Set<String> questsRewarded = new HashSet<>();
+    private boolean questBonusClaimed = false;
+
+    // Offres du jour : jour courant + offres déjà achetées aujourd'hui
+    private long dealsEpochDay = -1L;
+    private final Set<String> dealsBought = new HashSet<>();
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -186,5 +196,55 @@ public class PlayerData {
 
     public void setDecoyUntil(long decoyUntil) {
         this.decoyUntil = decoyUntil;
+    }
+
+    public long getQuestsEpochDay() {
+        return questsEpochDay;
+    }
+
+    public void setQuestsEpochDay(long day) {
+        this.questsEpochDay = day;
+    }
+
+    public Map<String, Integer> getQuestProgress() {
+        return questProgress;
+    }
+
+    public Set<String> getQuestsRewarded() {
+        return questsRewarded;
+    }
+
+    public boolean isQuestBonusClaimed() {
+        return questBonusClaimed;
+    }
+
+    public void setQuestBonusClaimed(boolean value) {
+        this.questBonusClaimed = value;
+    }
+
+    /** Remet les quêtes à zéro pour un nouveau jour. */
+    public void resetQuests(long day) {
+        this.questsEpochDay = day;
+        this.questProgress.clear();
+        this.questsRewarded.clear();
+        this.questBonusClaimed = false;
+    }
+
+    public long getDealsEpochDay() {
+        return dealsEpochDay;
+    }
+
+    public void setDealsEpochDay(long day) {
+        this.dealsEpochDay = day;
+    }
+
+    public Set<String> getDealsBought() {
+        return dealsBought;
+    }
+
+    /** Remet les achats d'offres du jour à zéro pour un nouveau jour. */
+    public void resetDeals(long day) {
+        this.dealsEpochDay = day;
+        this.dealsBought.clear();
     }
 }

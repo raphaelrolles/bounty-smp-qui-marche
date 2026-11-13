@@ -78,7 +78,7 @@ public class TrackerListener implements Listener {
             return;
         }
 
-        if (player.hasCooldown(Material.COMPASS)) {
+        if (player.hasCooldown(Material.ECHO_SHARD)) {
             player.sendActionBar(Component.text("Le Tracker recharge encore...", NamedTextColor.GRAY));
             Sfx.cooldown(player);
             return;
@@ -86,7 +86,7 @@ public class TrackerListener implements Listener {
 
         int cooldownSeconds = plugin.getConfig().getInt("tracker.cooldown-seconds", 15);
         int imprecision = plugin.getConfig().getInt("tracker.imprecision-blocks", 40);
-        player.setCooldown(Material.COMPASS, cooldownSeconds * 20);
+        player.setCooldown(Material.ECHO_SHARD, cooldownSeconds * 20);
 
         Location loc = onlineTarget.getLocation();
         int jitterX = ThreadLocalRandom.current().nextInt(-imprecision, imprecision + 1);

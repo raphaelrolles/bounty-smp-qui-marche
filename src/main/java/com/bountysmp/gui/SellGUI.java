@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -40,7 +41,7 @@ public class SellGUI implements Listener {
 
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(new SellHolder(), 27,
-                Component.text("Vendre des minerais - Ferme pour valider", NamedTextColor.GOLD));
+                GuiTitle.of(plugin, GuiTitle.SELL, "Vendre des minerais - Ferme pour valider", NamedTextColor.GOLD));
         player.openInventory(inv);
         Sfx.sellOpen(player);
     }

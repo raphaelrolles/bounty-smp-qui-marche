@@ -1,6 +1,8 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.GuiTitle;
+import com.bountysmp.util.Icons;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -42,7 +44,7 @@ public class BountyMenuGUI implements Listener {
 
     public void open(Player player) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(new BountyMenuHolder(), 27, Component.text("Bounty SMP", NamedTextColor.DARK_RED));
+        Inventory inv = Bukkit.createInventory(new BountyMenuHolder(), 27, GuiTitle.of(plugin, GuiTitle.MAIN, "Bounty SMP", NamedTextColor.DARK_RED));
 
         ItemStack profile = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta profileMeta = profile.getItemMeta();
@@ -58,23 +60,24 @@ public class BountyMenuGUI implements Listener {
         profile.setItemMeta(profileMeta);
         inv.setItem(13, profile);
 
-        inv.setItem(4, buildActionItem(Material.NETHER_STAR, "§6Top Chasseurs", "open_top",
+        inv.setItem(4, buildActionItem(Icons.TOP, Material.NETHER_STAR, "§6Top Chasseurs", "open_top",
                 List.of("§7Classement des meilleurs.")));
 
-        inv.setItem(11, buildActionItem(Material.CHEST, "§aOuvrir la Boutique", "open_shop",
+        inv.setItem(11, buildActionItem(Icons.SHOP, Material.CHEST, "§aOuvrir la Boutique", "open_shop",
                 List.of("§7Dépense tes coins.")));
 
-        inv.setItem(15, buildActionItem(Material.SKELETON_SKULL, "§cVoir les Recherchés", "open_wanted",
+        inv.setItem(15, buildActionItem(Icons.WANTED, Material.SKELETON_SKULL, "§cVoir les Recherchés", "open_wanted",
                 List.of("§7Liste des joueurs traqués.")));
+
+        inv.setItem(22, buildActionItem(Icons.QUESTS, Material.WRITABLE_BOOK, "§eQuêtes du jour", "open_quests",
+                List.of("§73 missions à accomplir", "§7pour gagner des coins.")));
 
         player.openInventory(inv);
     }
 
-    private ItemStack buildActionItem(Material material, String name, String id, List<String> lore) {
-        ItemStack item = new ItemStack(material);
+    private ItemStack buildActionItem(int cmd, Material fallback, String name, String id, List<String> lore) {
+        ItemStack item = Icons.gui(plugin, cmd, fallback, name, lore);
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
-        meta.lore(lore.stream().map(l -> Component.text(l).decoration(TextDecoration.ITALIC, false)).toList());
         meta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, id);
         item.setItemMeta(meta);
         return item;
@@ -99,6 +102,7 @@ public class BountyMenuGUI implements Listener {
             case "open_shop" -> plugin.getShopGUI().open(player);
             case "open_top" -> plugin.getTopGUI().open(player);
             case "open_wanted" -> plugin.getWantedGUI().open(player);
+            case "open_quests" -> plugin.getQuestGUI().open(player);
         }
     }
 }

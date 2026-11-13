@@ -1,6 +1,8 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.GuiTitle;
+import com.bountysmp.util.Icons;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -44,7 +46,7 @@ public class WantedGUI implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(new WantedHolder(), 27, Component.text("Recherchés (WANTED)", NamedTextColor.DARK_RED));
+        Inventory inv = Bukkit.createInventory(new WantedHolder(), 27, GuiTitle.of(plugin, GuiTitle.WANTED, "Recherchés (WANTED)", NamedTextColor.DARK_RED));
 
         List<PlayerData> candidates = plugin.getDataManager().topBounties(50);
         long windowSeconds = plugin.getConfig().getLong("danger.window-seconds", 600);
@@ -89,9 +91,8 @@ public class WantedGUI implements Listener {
             inv.setItem(13, empty);
         }
 
-        ItemStack back = new ItemStack(Material.BARRIER);
+        ItemStack back = Icons.gui(plugin, Icons.BACK, Material.BARRIER, "§7« Retour au menu", null);
         ItemMeta backMeta = back.getItemMeta();
-        backMeta.displayName(Component.text("§7« Retour au menu").decoration(TextDecoration.ITALIC, false));
         backMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "back");
         back.setItemMeta(backMeta);
         inv.setItem(22, back);

@@ -12,6 +12,9 @@ commands:
   sell:
     description: Ouvre un menu où déposer des minerais à vendre contre des Bounty Coins.
     usage: /sell
+  shop:
+    description: Ouvre la boutique Bounty.
+    usage: /shop
 
 permissions:
   bountysmp.admin:

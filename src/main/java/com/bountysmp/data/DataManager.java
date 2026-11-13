@@ -91,6 +91,17 @@ public class DataManager {
                 data.setFirstPurchaseAchievement(s.getBoolean("firstPurchaseAchievement", false));
                 data.setFirstBountyAchievement(s.getBoolean("firstBountyAchievement", false));
                 data.setDecoyUntil(s.getLong("decoyUntil", 0));
+                data.setQuestsEpochDay(s.getLong("questsEpochDay", -1L));
+                ConfigurationSection questSection = s.getConfigurationSection("questProgress");
+                if (questSection != null) {
+                    for (String qk : questSection.getKeys(false)) {
+                        data.getQuestProgress().put(qk, questSection.getInt(qk));
+                    }
+                }
+                data.getQuestsRewarded().addAll(s.getStringList("questsRewarded"));
+                data.setQuestBonusClaimed(s.getBoolean("questBonusClaimed", false));
+                data.setDealsEpochDay(s.getLong("dealsEpochDay", -1L));
+                data.getDealsBought().addAll(s.getStringList("dealsBought"));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -137,6 +148,14 @@ public class DataManager {
             yaml.set(path + ".firstPurchaseAchievement", data.isFirstPurchaseAchievement());
             yaml.set(path + ".firstBountyAchievement", data.isFirstBountyAchievement());
             yaml.set(path + ".decoyUntil", data.getDecoyUntil());
+            yaml.set(path + ".questsEpochDay", data.getQuestsEpochDay());
+            for (Map.Entry<String, Integer> qe : data.getQuestProgress().entrySet()) {
+                yaml.set(path + ".questProgress." + qe.getKey(), qe.getValue());
+            }
+            yaml.set(path + ".questsRewarded", new java.util.ArrayList<>(data.getQuestsRewarded()));
+            yaml.set(path + ".questBonusClaimed", data.isQuestBonusClaimed());
+            yaml.set(path + ".dealsEpochDay", data.getDealsEpochDay());
+            yaml.set(path + ".dealsBought", new java.util.ArrayList<>(data.getDealsBought()));
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

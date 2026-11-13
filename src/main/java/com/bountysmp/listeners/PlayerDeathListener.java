@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.quests.QuestType;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.data.PlayerData;
@@ -39,6 +40,7 @@ public class PlayerDeathListener implements Listener {
 
         // --- 1. Le tué avait-il une prime ? ---
         double bountyOnVictim = victimData.getBounty();
+        plugin.getQuestManager().add(killer, QuestType.KILL_PLAYERS, 1);
         Component gain;
         if (bountyOnVictim > 0) {
             killerData.addCoins(bountyOnVictim);
@@ -46,6 +48,7 @@ public class PlayerDeathListener implements Listener {
             victimData.clearBounty();
             gain = Component.text("☠ Prime encaissée : +" + (long) bountyOnVictim + " coins", NamedTextColor.GOLD);
             Sfx.bountyClaimed(plugin, killer);
+            plugin.getQuestManager().add(killer, QuestType.CLAIM_BOUNTY, 1);
 
             if (!killerData.isFirstBountyAchievement()) {
                 killerData.setFirstBountyAchievement(true);

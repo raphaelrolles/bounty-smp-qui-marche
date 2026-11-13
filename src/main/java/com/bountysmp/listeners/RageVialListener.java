@@ -46,14 +46,14 @@ public class RageVialListener implements Listener {
         event.setCancelled(true);
         Player player = event.getPlayer();
 
-        if (player.hasCooldown(Material.POTION)) {
+        if (player.hasCooldown(Material.GLASS_BOTTLE)) {
             player.sendActionBar(Component.text("La Fiole de Rage recharge encore...", NamedTextColor.GRAY));
             Sfx.cooldown(player);
             return;
         }
 
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.rage-vial-seconds", 25);
-        player.setCooldown(Material.POTION, cooldownSeconds * 20);
+        player.setCooldown(Material.GLASS_BOTTLE, cooldownSeconds * 20);
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 15, 0));
         player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 15, 0));

@@ -55,6 +55,7 @@ public final class Sfx {
             case "netherite_kit" -> Sound.ITEM_ARMOR_EQUIP_NETHERITE;
             case "hunter_kit" -> Sound.ITEM_ARMOR_EQUIP_CHAIN;
             case "tracker" -> Sound.ITEM_LODESTONE_COMPASS_LOCK;
+            case "recall_stone" -> Sound.ITEM_CHORUS_FRUIT_TELEPORT;
             case "smoke_bomb" -> Sound.ENTITY_FIREWORK_ROCKET_LAUNCH;
             case "chaos_grenade" -> Sound.BLOCK_BREWING_STAND_BREW;
             case "dash_item" -> Sound.ENTITY_PHANTOM_FLAP;
@@ -64,10 +65,6 @@ public final class Sfx {
             case "lucky_purse" -> Sound.BLOCK_NOTE_BLOCK_CHIME;
             case "spy_eye" -> Sound.ENTITY_ENDER_EYE_LAUNCH;
             case "pickpocket" -> Sound.ENTITY_ITEM_FRAME_ADD_ITEM;
-            case "builder_kit" -> Sound.BLOCK_STONE_PLACE;
-            case "farmer_kit" -> Sound.ITEM_HOE_TILL;
-            case "explorer_kit" -> Sound.ITEM_FLINTANDSTEEL_USE;
-            case "toolbox" -> Sound.BLOCK_ANVIL_USE;
             default -> Sound.ENTITY_VILLAGER_YES;
         };
         me(p, special, 0.9f, 1.1f);
@@ -207,5 +204,29 @@ public final class Sfx {
         for (Player online : Bukkit.getOnlinePlayers()) {
             me(online, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.25f, 1.2f);
         }
+    }
+
+    // ---------------------------------------------------------------- quêtes & Pierre de Rappel
+    public static void questDone(BountySMP plugin, Player p) {
+        me(p, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+        later(plugin, 6, () -> coins(plugin, p));
+    }
+
+    public static void recallStart(Player p) {
+        me(p, Sound.BLOCK_BEACON_ACTIVATE, 0.8f, 1.6f);
+    }
+
+    public static void recallTick(Player p, int remaining) {
+        me(p, Sound.BLOCK_NOTE_BLOCK_HAT, 0.8f, 0.8f + 0.12f * (8 - Math.min(remaining, 8)));
+    }
+
+    public static void recallCancel(Player p) {
+        me(p, Sound.BLOCK_BEACON_DEACTIVATE, 0.8f, 1.2f);
+        me(p, Sound.ENTITY_VILLAGER_NO, 0.8f, 1f);
+    }
+
+    public static void recallDone(Location from, Location to) {
+        at(from, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+        at(to, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1f, 1f);
     }
 }

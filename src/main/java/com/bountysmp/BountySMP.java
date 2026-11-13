@@ -2,8 +2,10 @@ package com.bountysmp;
 
 import com.bountysmp.commands.BountyCommand;
 import com.bountysmp.commands.SellCommand;
+import com.bountysmp.commands.ShopCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
+import com.bountysmp.gui.QuestGUI;
 import com.bountysmp.gui.SellGUI;
 import com.bountysmp.gui.ShopGUI;
 import com.bountysmp.gui.TopGUI;
@@ -14,11 +16,14 @@ import com.bountysmp.listeners.FakeIngotListener;
 import com.bountysmp.listeners.LuckyPurseListener;
 import com.bountysmp.listeners.PlayerDeathListener;
 import com.bountysmp.listeners.PickpocketListener;
+import com.bountysmp.listeners.RecallStoneListener;
 import com.bountysmp.listeners.RageVialListener;
 import com.bountysmp.listeners.SmokeBombListener;
 import com.bountysmp.listeners.SpyEyeListener;
 import com.bountysmp.listeners.StinkBombListener;
 import com.bountysmp.listeners.TrackerListener;
+import com.bountysmp.quests.QuestListener;
+import com.bountysmp.quests.QuestManager;
 import com.bountysmp.util.AchievementUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,6 +38,8 @@ public final class BountySMP extends JavaPlugin {
     private TopGUI topGUI;
     private SellGUI sellGUI;
     private AchievementUtil achievementUtil;
+    private QuestManager questManager;
+    private QuestGUI questGUI;
 
     @Override
     public void onEnable() {
@@ -48,6 +55,8 @@ public final class BountySMP extends JavaPlugin {
         this.bountyMenuGUI = new BountyMenuGUI(this);
         this.topGUI = new TopGUI(this);
         this.sellGUI = new SellGUI(this);
+        this.questManager = new QuestManager(this);
+        this.questGUI = new QuestGUI(this);
         this.achievementUtil = new AchievementUtil(this);
         this.achievementUtil.registerAdvancements();
 
@@ -56,6 +65,7 @@ public final class BountySMP extends JavaPlugin {
         getCommand("bounty").setExecutor(bountyCommand);
         getCommand("bounty").setTabCompleter(bountyCommand);
         getCommand("sell").setExecutor(new SellCommand(this));
+        getCommand("shop").setExecutor(new ShopCommand(this));
 
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -74,6 +84,12 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LuckyPurseListener(this), this);
         getServer().getPluginManager().registerEvents(new SpyEyeListener(this), this);
         getServer().getPluginManager().registerEvents(new PickpocketListener(this), this);
+        getServer().getPluginManager().registerEvents(new RecallStoneListener(this), this);
+        getServer().getPluginManager().registerEvents(questGUI, this);
+        QuestListener questListener = new QuestListener(this, questManager);
+        getServer().getPluginManager().registerEvents(questListener, this);
+        // temps de jeu des quêtes : +1 minute active chaque minute
+        getServer().getScheduler().runTaskTimer(this, questListener::tickPlaytime, 20L * 60, 20L * 60);
 
         // Sauvegarde périodique (toutes les 5 minutes) pour éviter les pertes de données
         getServer().getScheduler().runTaskTimerAsynchronously(this, () -> dataManager.save(), 20L * 60 * 5, 20L * 60 * 5);
@@ -119,5 +135,13 @@ public final class BountySMP extends JavaPlugin {
 
     public AchievementUtil getAchievementUtil() {
         return achievementUtil;
+    }
+
+    public QuestManager getQuestManager() {
+        return questManager;
+    }
+
+    public QuestGUI getQuestGUI() {
+        return questGUI;
     }
 }
