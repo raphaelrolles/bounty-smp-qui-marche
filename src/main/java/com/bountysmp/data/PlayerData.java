@@ -64,6 +64,9 @@ public class PlayerData {
     private long dealsEpochDay = -1L;
     private final Set<String> dealsBought = new HashSet<>();
 
+    // Thème visuel choisi pour le menu /bounty (voir MenuTheme)
+    private String menuTheme = "pirate";
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -246,5 +249,13 @@ public class PlayerData {
     public void resetDeals(long day) {
         this.dealsEpochDay = day;
         this.dealsBought.clear();
+    }
+
+    public String getMenuTheme() {
+        return menuTheme;
+    }
+
+    public void setMenuTheme(String menuTheme) {
+        this.menuTheme = menuTheme;
     }
 }

@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -42,6 +43,7 @@ public class SmokeBombListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(smokeBombKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
@@ -68,11 +70,7 @@ public class SmokeBombListener implements Listener {
         player.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, player.getLocation().add(0, 1, 0), 40, 0.5, 1, 0.5, 0.02);
         Sfx.smokeBomb(plugin, player);
 
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().removeItem(item);
-        }
+        ItemUse.consumeOne(player, event.getHand());
 
         player.sendActionBar(Component.text("💨 Tu disparais dans la fumée pendant 10 secondes...", NamedTextColor.GRAY));
     }

@@ -3,6 +3,8 @@ package com.bountysmp.commands;
 import com.bountysmp.BountySMP;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.data.PlayerData;
+import com.bountysmp.util.Daily;
+import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -47,6 +49,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "reset" -> handleReset(sender, args);
             case "inv" -> handleViewInventory(sender, args);
             case "enderchest" -> handleViewEnderChest(sender, args);
+            case "daily" -> handleDaily(sender, args);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
@@ -211,11 +214,74 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         admin.sendMessage(Component.text("Enderchest de " + target.getName() + " ouvert.", NamedTextColor.GREEN));
     }
 
+    /**
+     * /bounty daily reset <quests|deals|all> [joueur] : même quêtes/offres, progression et achats remis à zéro.
+     * /bounty daily reroll <quests|deals|all>        : génère de NOUVELLES quêtes/offres pour tout le monde.
+     */
+    private void handleDaily(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        Component usage = Component.text("Usage : /bounty daily <reset|reroll> <quests|deals|all> [joueur]", NamedTextColor.RED);
+        if (args.length < 3) {
+            sender.sendMessage(usage);
+            return;
+        }
+        String action = args[1].toLowerCase();
+        String what = args[2].toLowerCase();
+        boolean quests = what.equals("quests") || what.equals("all");
+        boolean deals = what.equals("deals") || what.equals("all");
+        if (!(action.equals("reset") || action.equals("reroll")) || (!quests && !deals)) {
+            sender.sendMessage(usage);
+            return;
+        }
+
+        DataManager dm = plugin.getDataManager();
+        long today = Daily.today(plugin);
+        String label = quests && deals ? "quêtes et offres" : (quests ? "quêtes" : "offres");
+
+        if (action.equals("reroll")) {
+            if (quests) dm.bumpQuestSalt(today);
+            if (deals) dm.bumpDealSalt(today);
+            for (PlayerData d : dm.all().values()) {
+                if (quests) d.resetQuests(today);
+                if (deals) d.resetDeals(today);
+            }
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                online.sendActionBar(Component.text("🔄 Nouvelles " + label + " du jour disponibles !", NamedTextColor.GOLD));
+                Sfx.click(online);
+            }
+            sender.sendMessage(Component.text("✅ Nouvelles " + label + " générées pour tout le monde (progression remise à zéro).", NamedTextColor.GREEN));
+            return;
+        }
+
+        List<PlayerData> targets = new ArrayList<>();
+        String who;
+        if (args.length >= 4) {
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[3]);
+            targets.add(dm.get(target.getUniqueId()));
+            who = args[3];
+        } else {
+            targets.addAll(dm.all().values());
+            who = "tous les joueurs";
+        }
+        for (PlayerData d : targets) {
+            if (quests) d.resetQuests(today);
+            if (deals) d.resetDeals(today);
+            Player online = Bukkit.getPlayer(d.getUuid());
+            if (online != null) {
+                online.sendActionBar(Component.text("🔄 Tes " + label + " du jour ont été remises à zéro.", NamedTextColor.GOLD));
+            }
+        }
+        sender.sendMessage(Component.text("✅ " + label + " remises à zéro pour " + who + ".", NamedTextColor.GREEN));
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> subs = new ArrayList<>(List.of("add"));
         if (sender.hasPermission("bountysmp.admin")) {
-            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest"));
+            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
@@ -226,6 +292,18 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reset")) {
             return List.of("CONFIRMER").stream().filter(s -> s.startsWith(args[1].toUpperCase())).collect(Collectors.toList());
+        }
+        if (args[0].equalsIgnoreCase("daily")) {
+            if (args.length == 2) {
+                return List.of("reset", "reroll").stream().filter(x -> x.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+            }
+            if (args.length == 3) {
+                return List.of("quests", "deals", "all").stream().filter(x -> x.startsWith(args[2].toLowerCase())).collect(Collectors.toList());
+            }
+            if (args.length == 4 && args[1].equalsIgnoreCase("reset")) {
+                return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        .filter(n -> n.toLowerCase().startsWith(args[3].toLowerCase())).collect(Collectors.toList());
+            }
         }
         return new ArrayList<>();
     }

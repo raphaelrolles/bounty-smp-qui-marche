@@ -24,6 +24,7 @@ public final class GuiTitle {
     public static final String QUESTS = "\uE007";
     public static final String SELL = "\uE008";
     public static final String REEL = "\uE009";
+    public static final String THEME_MENU = "\uE011";
 
     private GuiTitle() {
     }

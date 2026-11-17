@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Msg;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
@@ -51,6 +52,7 @@ public class TrackerListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(trackerKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();

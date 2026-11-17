@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -49,6 +50,7 @@ public class DashItemListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(dashKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
@@ -71,11 +73,7 @@ public class DashItemListener implements Listener {
         player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 20, 0.3, 0.1, 0.3, 0.05);
         Sfx.dash(plugin, player);
 
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().removeItem(item);
-        }
+        ItemUse.consumeOne(player, event.getHand());
 
         player.sendActionBar(Component.text("💨 Élan !", NamedTextColor.AQUA));
     }

@@ -30,6 +30,7 @@ public class QuestManager {
 
     private final BountySMP plugin;
     private long cachedDay = Long.MIN_VALUE;
+    private int cachedSalt = 0;
     private List<Quest> cached = List.of();
 
     public QuestManager(BountySMP plugin) {
@@ -39,15 +40,17 @@ public class QuestManager {
     /** Les quêtes du jour (recalculées automatiquement à minuit). */
     public List<Quest> today() {
         long day = Daily.today(plugin);
-        if (day != cachedDay) {
-            cached = generate(day);
+        int salt = plugin.getDataManager().questSalt(day);
+        if (day != cachedDay || salt != cachedSalt) {
+            cached = generate(day, salt);
             cachedDay = day;
+            cachedSalt = salt;
         }
         return cached;
     }
 
-    private List<Quest> generate(long day) {
-        Random rnd = new Random(day * 104729L + 17L);
+    private List<Quest> generate(long day, int salt) {
+        Random rnd = new Random(day * 104729L + 17L + salt * 7919L);
         Set<QuestType> used = new HashSet<>();
         List<Quest> out = new ArrayList<>();
         out.add(pick(rnd, EASY, Tier.EASY, used));

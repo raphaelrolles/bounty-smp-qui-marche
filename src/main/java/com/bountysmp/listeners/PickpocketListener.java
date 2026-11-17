@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -47,6 +48,7 @@ public class PickpocketListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(pickpocketKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
@@ -72,11 +74,7 @@ public class PickpocketListener implements Listener {
         int stolen = (int) Math.min(amount, targetData.getCoins());
 
         // Consommation de l'objet dans tous les cas (usage unique)
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().removeItem(item);
-        }
+        ItemUse.consumeOne(player, event.getHand());
 
         if (stolen <= 0) {
             player.sendActionBar(Component.text("La bourse de " + target.getName() + " est vide... Coup pour rien.", NamedTextColor.GRAY));

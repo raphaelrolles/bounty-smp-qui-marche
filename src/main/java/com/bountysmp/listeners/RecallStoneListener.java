@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -52,6 +53,7 @@ public class RecallStoneListener implements Listener {
             return;
         }
         if (!isStone(event.getItem())) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();

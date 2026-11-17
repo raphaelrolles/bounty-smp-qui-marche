@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -49,6 +50,7 @@ public class SpyEyeListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(spyKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
@@ -84,11 +86,7 @@ public class SpyEyeListener implements Listener {
 
         String direction = compassDirection(from, to);
 
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().removeItem(item);
-        }
+        ItemUse.consumeOne(player, event.getHand());
 
         player.sendActionBar(Component.text("👁 Présence détectée à ", NamedTextColor.LIGHT_PURPLE)
                 .append(Component.text("~" + approxDistance + " blocs", NamedTextColor.YELLOW))

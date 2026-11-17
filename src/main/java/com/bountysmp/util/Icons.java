@@ -42,6 +42,7 @@ public final class Icons {
     public static final int CHECK = 2010;
     public static final int SELL = 2011;
     public static final int DEAL = 2012;
+    public static final int PALETTE = 2013;
 
     private Icons() {
     }

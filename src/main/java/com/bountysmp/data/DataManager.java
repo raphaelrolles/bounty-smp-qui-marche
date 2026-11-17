@@ -24,6 +24,39 @@ public class DataManager {
     private final Logger logger;
     private final Map<UUID, PlayerData> cache = new HashMap<>();
 
+    // "Reroll" admin des quêtes / offres : change la graine du jour (valable jusqu'à minuit)
+    private long dailyDay = Long.MIN_VALUE;
+    private int questSalt = 0;
+    private int dealSalt = 0;
+
+    private void syncDailyDay(long today) {
+        if (dailyDay != today) {
+            dailyDay = today;
+            questSalt = 0;
+            dealSalt = 0;
+        }
+    }
+
+    public int questSalt(long today) {
+        syncDailyDay(today);
+        return questSalt;
+    }
+
+    public int dealSalt(long today) {
+        syncDailyDay(today);
+        return dealSalt;
+    }
+
+    public void bumpQuestSalt(long today) {
+        syncDailyDay(today);
+        questSalt++;
+    }
+
+    public void bumpDealSalt(long today) {
+        syncDailyDay(today);
+        dealSalt++;
+    }
+
     public DataManager(File dataFolder, Logger logger) {
         this.logger = logger;
         if (!dataFolder.exists()) {
@@ -63,6 +96,10 @@ public class DataManager {
             return;
         }
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(dataFile);
+        long savedDay = yaml.getLong("daily.day", -1L);
+        dailyDay = savedDay < 0 ? Long.MIN_VALUE : savedDay;
+        questSalt = yaml.getInt("daily.questSalt", 0);
+        dealSalt = yaml.getInt("daily.dealSalt", 0);
         ConfigurationSection playersSection = yaml.getConfigurationSection("players");
         if (playersSection == null) {
             return;
@@ -102,6 +139,7 @@ public class DataManager {
                 data.setQuestBonusClaimed(s.getBoolean("questBonusClaimed", false));
                 data.setDealsEpochDay(s.getLong("dealsEpochDay", -1L));
                 data.getDealsBought().addAll(s.getStringList("dealsBought"));
+                data.setMenuTheme(s.getString("menuTheme", "pirate"));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -124,6 +162,9 @@ public class DataManager {
     /** Efface TOUTES les données en mémoire et sur disque (coins, primes, achats, etc. de tous les joueurs). */
     public void resetAll() {
         cache.clear();
+        dailyDay = Long.MIN_VALUE;
+        questSalt = 0;
+        dealSalt = 0;
         if (dataFile.exists()) {
             dataFile.delete();
         }
@@ -132,6 +173,9 @@ public class DataManager {
 
     public void save() {
         YamlConfiguration yaml = new YamlConfiguration();
+        yaml.set("daily.day", dailyDay == Long.MIN_VALUE ? -1L : dailyDay);
+        yaml.set("daily.questSalt", questSalt);
+        yaml.set("daily.dealSalt", dealSalt);
         for (Map.Entry<UUID, PlayerData> entry : cache.entrySet()) {
             PlayerData data = entry.getValue();
             String path = "players." + entry.getKey();
@@ -156,6 +200,7 @@ public class DataManager {
             yaml.set(path + ".questBonusClaimed", data.isQuestBonusClaimed());
             yaml.set(path + ".dealsEpochDay", data.getDealsEpochDay());
             yaml.set(path + ".dealsBought", new java.util.ArrayList<>(data.getDealsBought()));
+            yaml.set(path + ".menuTheme", data.getMenuTheme());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

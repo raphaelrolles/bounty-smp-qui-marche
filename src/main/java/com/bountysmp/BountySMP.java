@@ -6,6 +6,7 @@ import com.bountysmp.commands.ShopCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.QuestGUI;
+import com.bountysmp.gui.ThemeGUI;
 import com.bountysmp.gui.SellGUI;
 import com.bountysmp.gui.ShopGUI;
 import com.bountysmp.gui.TopGUI;
@@ -40,6 +41,7 @@ public final class BountySMP extends JavaPlugin {
     private AchievementUtil achievementUtil;
     private QuestManager questManager;
     private QuestGUI questGUI;
+    private ThemeGUI themeGUI;
 
     @Override
     public void onEnable() {
@@ -57,6 +59,7 @@ public final class BountySMP extends JavaPlugin {
         this.sellGUI = new SellGUI(this);
         this.questManager = new QuestManager(this);
         this.questGUI = new QuestGUI(this);
+        this.themeGUI = new ThemeGUI(this);
         this.achievementUtil = new AchievementUtil(this);
         this.achievementUtil.registerAdvancements();
 
@@ -86,6 +89,7 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PickpocketListener(this), this);
         getServer().getPluginManager().registerEvents(new RecallStoneListener(this), this);
         getServer().getPluginManager().registerEvents(questGUI, this);
+        getServer().getPluginManager().registerEvents(themeGUI, this);
         QuestListener questListener = new QuestListener(this, questManager);
         getServer().getPluginManager().registerEvents(questListener, this);
         // temps de jeu des quêtes : +1 minute active chaque minute
@@ -143,5 +147,9 @@ public final class BountySMP extends JavaPlugin {
 
     public QuestGUI getQuestGUI() {
         return questGUI;
+    }
+
+    public ThemeGUI getThemeGUI() {
+        return themeGUI;
     }
 }

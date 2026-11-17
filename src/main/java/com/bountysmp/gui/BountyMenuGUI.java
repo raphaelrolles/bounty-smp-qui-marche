@@ -3,6 +3,7 @@ package com.bountysmp.gui;
 import com.bountysmp.BountySMP;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Icons;
+import com.bountysmp.util.MenuTheme;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -44,7 +45,7 @@ public class BountyMenuGUI implements Listener {
 
     public void open(Player player) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(new BountyMenuHolder(), 27, GuiTitle.of(plugin, GuiTitle.MAIN, "Bounty SMP", NamedTextColor.DARK_RED));
+        Inventory inv = Bukkit.createInventory(new BountyMenuHolder(), 27, GuiTitle.of(plugin, MenuTheme.from(data.getMenuTheme()).glyph(), "Bounty SMP", NamedTextColor.DARK_RED));
 
         ItemStack profile = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta profileMeta = profile.getItemMeta();
@@ -71,6 +72,9 @@ public class BountyMenuGUI implements Listener {
 
         inv.setItem(22, buildActionItem(Icons.QUESTS, Material.WRITABLE_BOOK, "§eQuêtes du jour", "open_quests",
                 List.of("§73 missions à accomplir", "§7pour gagner des coins.")));
+
+        inv.setItem(26, buildActionItem(Icons.PALETTE, Material.PAINTING, "§dPersonnaliser le menu", "open_theme",
+                List.of("§7Change l'apparence de ton menu.")));
 
         player.openInventory(inv);
     }
@@ -103,6 +107,7 @@ public class BountyMenuGUI implements Listener {
             case "open_top" -> plugin.getTopGUI().open(player);
             case "open_wanted" -> plugin.getWantedGUI().open(player);
             case "open_quests" -> plugin.getQuestGUI().open(player);
+            case "open_theme" -> plugin.getThemeGUI().open(player);
         }
     }
 }

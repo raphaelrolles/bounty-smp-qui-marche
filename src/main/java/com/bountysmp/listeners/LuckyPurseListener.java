@@ -1,6 +1,7 @@
 package com.bountysmp.listeners;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.ItemUse;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
@@ -73,16 +74,13 @@ public class LuckyPurseListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         Byte flag = meta.getPersistentDataContainer().get(purseKey, PersistentDataType.BYTE);
         if (flag == null) return;
+        if (ItemUse.guardOffhand(plugin, event)) return;
 
         event.setCancelled(true);
         Player player = event.getPlayer();
 
         // Consomme l'objet immédiatement (usage unique, évite le spam pendant l'animation)
-        if (item.getAmount() > 1) {
-            item.setAmount(item.getAmount() - 1);
-        } else {
-            player.getInventory().removeItem(item);
-        }
+        ItemUse.consumeOne(player, event.getHand());
 
         // Détermine le résultat AVANT l'animation
         int jackpot = plugin.getConfig().getInt("lucky-purse.jackpot-reward", 300);

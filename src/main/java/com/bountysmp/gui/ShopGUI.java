@@ -102,6 +102,7 @@ public class ShopGUI implements Listener {
     private String currentItemId = "";
 
     private long dealsCacheDay = Long.MIN_VALUE;
+    private int dealsCacheSalt = 0;
     private List<DealOffer> dealsCache = List.of();
 
     public ShopGUI(BountySMP plugin) {
@@ -275,14 +276,15 @@ public class ShopGUI implements Listener {
     // ================================================================= offres du jour
     private List<DealOffer> todayDeals() {
         long day = Daily.today(plugin);
-        if (day != dealsCacheDay) {
+        int salt = plugin.getDataManager().dealSalt(day);
+        if (day != dealsCacheDay || salt != dealsCacheSalt) {
             List<Product> pool = new ArrayList<>();
             for (Product p : catalog.values()) {
                 if (!p.id().equals("netherite_kit")) {
                     pool.add(p);
                 }
             }
-            Random rnd = new Random(day * 7919L + 31L);
+            Random rnd = new Random(day * 7919L + 31L + salt * 104729L);
             Collections.shuffle(pool, rnd);
             int min = plugin.getConfig().getInt("deals.min-discount", 25);
             int max = Math.max(min, plugin.getConfig().getInt("deals.max-discount", 50));
@@ -295,6 +297,7 @@ public class ShopGUI implements Listener {
             }
             dealsCache = out;
             dealsCacheDay = day;
+            dealsCacheSalt = salt;
         }
         return dealsCache;
     }
