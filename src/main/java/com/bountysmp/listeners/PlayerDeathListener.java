@@ -3,6 +3,7 @@ package com.bountysmp.listeners;
 import com.bountysmp.BountySMP;
 import com.bountysmp.quests.QuestType;
 import com.bountysmp.util.Sfx;
+import com.bountysmp.util.Trophy;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -40,6 +41,7 @@ public class PlayerDeathListener implements Listener {
 
         // --- 1. Le tué avait-il une prime ? ---
         double bountyOnVictim = victimData.getBounty();
+        boolean farmKill = isRecentKill(killerData, victim.getUniqueId());
         plugin.getQuestManager().add(killer, QuestType.KILL_PLAYERS, 1);
         Component gain;
         if (bountyOnVictim > 0) {
@@ -71,10 +73,17 @@ public class PlayerDeathListener implements Listener {
             gain = Component.text("+" + (long) reward + " coins ", NamedTextColor.GREEN)
                     .append(Component.text("(kill sur " + victim.getName() + ")", NamedTextColor.GRAY));
             Sfx.killReward(killer);
+
+            // Danger automatique : uniquement pour les kills NORMAUX (voir ci-dessous)
+            applyDangerSystem(killer, killerData);
         }
 
-        // --- 3. Système de danger automatique ---
-        applyDangerSystem(killer, killerData);
+        // Tuer un joueur RECHERCHÉ ne fait pas monter ta propre prime : le système de danger ne s'applique
+        // qu'aux kills normaux, sinon plus personne n'oserait chasser les primes.
+        killerData.getLastKillOnVictim().put(victim.getUniqueId(), System.currentTimeMillis());
+
+        // --- 3. Tête de trophée ---
+        dropTrophy(event, victim, killer, bountyOnVictim > 0, farmKill);
 
         killer.sendActionBar(gain
                 .append(Component.text("  •  Solde : ", NamedTextColor.DARK_GRAY))
@@ -153,5 +162,28 @@ public class PlayerDeathListener implements Listener {
                 Sfx.danger();
             }
         }
+    }
+
+    /** Vrai si le tueur a déjà tué ce joueur il y a peu de temps (même fenêtre que l'anti-farm). */
+    private boolean isRecentKill(PlayerData killerData, java.util.UUID victimUuid) {
+        long cooldownMs = plugin.getConfig().getLong("anti-farm.cooldown-seconds", 600) * 1000L;
+        Long last = killerData.getLastKillOnVictim().get(victimUuid);
+        return last != null && (System.currentTimeMillis() - last) < cooldownMs;
+    }
+
+    /** La victime laisse sa tête : valeur normale, plus élevée si elle était recherchée, minimale si c'est du farm. */
+    private void dropTrophy(PlayerDeathEvent event, Player victim, Player killer, boolean wanted, boolean farm) {
+        if (!plugin.getConfig().getBoolean("trophy.enabled", true)) {
+            return;
+        }
+        int value;
+        if (farm) {
+            value = plugin.getConfig().getInt("trophy.farm-head-value", 1);
+        } else if (wanted) {
+            value = plugin.getConfig().getInt("trophy.wanted-head-value", 75);
+        } else {
+            value = plugin.getConfig().getInt("trophy.head-value", 25);
+        }
+        event.getDrops().add(Trophy.create(plugin, victim, killer, value, wanted));
     }
 }

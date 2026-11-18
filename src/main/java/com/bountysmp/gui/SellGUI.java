@@ -3,6 +3,7 @@ package com.bountysmp.gui;
 import com.bountysmp.BountySMP;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Sfx;
+import com.bountysmp.util.Trophy;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -81,12 +82,19 @@ public class SellGUI implements Listener {
         rates.put(Material.RAW_IRON, plugin.getConfig().getDouble("ore-exchange.iron-ingot-rate", 1));
 
         double total = 0;
+        int trophies = 0;
         Map<Material, Integer> sold = new LinkedHashMap<>();
         ItemStack[] contents = event.getInventory().getContents();
 
         for (int i = 0; i < contents.length; i++) {
             ItemStack stack = contents[i];
             if (stack == null) continue;
+            int trophyValue = Trophy.valueOf(plugin, stack);
+            if (trophyValue > 0) {
+                total += (double) trophyValue * stack.getAmount();
+                trophies += stack.getAmount();
+                continue;
+            }
             Double rate = rates.get(stack.getType());
             if (rate == null) {
                 // Objet non reconnu : on le rend au joueur au lieu de le perdre
@@ -108,6 +116,11 @@ public class SellGUI implements Listener {
         for (Map.Entry<Material, Integer> entry : sold.entrySet()) {
             if (detail.length() > 0) detail.append(", ");
             detail.append(entry.getValue()).append(" ").append(prettyName(entry.getKey()));
+        }
+
+        if (trophies > 0) {
+            if (detail.length() > 0) detail.append(", ");
+            detail.append(trophies).append(trophies > 1 ? " têtes" : " tête");
         }
 
         String detailText = detail.length() <= 28 ? " (" + detail + ")" : "";

@@ -110,3 +110,16 @@ deals:
 # Pierre de Rappel : secondes d'immobilité avant le retour au lit (ou au spawn)
 recall-stone:
   channel-seconds: 8
+
+# Têtes de trophée : un joueur tué en PvP laisse sa tête, vendable avec /sell.
+# La valeur est figée au moment du kill. "farm" = même victime tuée plusieurs fois dans la fenêtre anti-farm.
+trophy:
+  enabled: true
+  head-value: 25
+  wanted-head-value: 75
+  farm-head-value: 1
+
+# /pay : montant minimum et taxe (en %, 0 = aucune) prélevée sur chaque envoi
+pay:
+  min-amount: 1
+  tax-percent: 0

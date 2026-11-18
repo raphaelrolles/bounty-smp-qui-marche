@@ -50,6 +50,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "inv" -> handleViewInventory(sender, args);
             case "enderchest" -> handleViewEnderChest(sender, args);
             case "daily" -> handleDaily(sender, args);
+            case "pay" -> PayCommand.transfer(plugin, sender, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
         return true;
@@ -279,14 +280,14 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> subs = new ArrayList<>(List.of("add"));
+        List<String> subs = new ArrayList<>(List.of("add", "pay"));
         if (sender.hasPermission("bountysmp.admin")) {
             subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
-        if (args.length == 2 && List.of("add", "addcoins", "removecoins", "addadmin", "inv", "enderchest").contains(args[0].toLowerCase())) {
+        if (args.length == 2 && List.of("add", "pay", "addcoins", "removecoins", "addadmin", "inv", "enderchest").contains(args[0].toLowerCase())) {
             return Bukkit.getOnlinePlayers().stream().map(Player::getName)
                     .filter(n -> n.toLowerCase().startsWith(args[1].toLowerCase())).collect(Collectors.toList());
         }

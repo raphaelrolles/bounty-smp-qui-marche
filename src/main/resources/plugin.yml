@@ -15,6 +15,13 @@ commands:
   shop:
     description: Ouvre la boutique Bounty.
     usage: /shop
+  balance:
+    description: Affiche ton solde de Bounty Coins.
+    usage: /balance [joueur]
+    aliases: [bal, coins]
+  pay:
+    description: Envoie des Bounty Coins à un autre joueur.
+    usage: /pay <joueur> <montant>
 
 permissions:
   bountysmp.admin:

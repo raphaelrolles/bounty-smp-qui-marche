@@ -1,6 +1,8 @@
 package com.bountysmp;
 
+import com.bountysmp.commands.BalanceCommand;
 import com.bountysmp.commands.BountyCommand;
+import com.bountysmp.commands.PayCommand;
 import com.bountysmp.commands.SellCommand;
 import com.bountysmp.commands.ShopCommand;
 import com.bountysmp.data.DataManager;
@@ -68,6 +70,12 @@ public final class BountySMP extends JavaPlugin {
         getCommand("bounty").setExecutor(bountyCommand);
         getCommand("bounty").setTabCompleter(bountyCommand);
         getCommand("sell").setExecutor(new SellCommand(this));
+        BalanceCommand balanceCommand = new BalanceCommand(this);
+        getCommand("balance").setExecutor(balanceCommand);
+        getCommand("balance").setTabCompleter(balanceCommand);
+        PayCommand payCommand = new PayCommand(this);
+        getCommand("pay").setExecutor(payCommand);
+        getCommand("pay").setTabCompleter(payCommand);
         getCommand("shop").setExecutor(new ShopCommand(this));
 
         // Listeners
