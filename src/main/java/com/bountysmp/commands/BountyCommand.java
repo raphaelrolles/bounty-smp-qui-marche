@@ -4,6 +4,7 @@ import com.bountysmp.BountySMP;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.data.PlayerData;
 import com.bountysmp.util.Daily;
+import com.bountysmp.util.Players;
 import com.bountysmp.util.Sfx;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -50,6 +51,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "inv" -> handleViewInventory(sender, args);
             case "enderchest" -> handleViewEnderChest(sender, args);
             case "daily" -> handleDaily(sender, args);
+            case "merchant" -> handleMerchant(sender, args);
             case "pay" -> PayCommand.transfer(plugin, sender, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
@@ -66,6 +68,10 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+        if (!Players.isReal(target)) {
+            player.sendMessage(Component.text("Joueur introuvable : " + args[1] + " (il doit être connecté, ou s'être déjà connecté au serveur).", NamedTextColor.RED));
+            return;
+        }
         if (target.getUniqueId().equals(player.getUniqueId())) {
             player.sendMessage(Component.text("Tu ne peux pas mettre une prime sur toi-même.", NamedTextColor.RED));
             return;
@@ -135,6 +141,10 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+        if (!Players.isReal(target)) {
+            sender.sendMessage(Component.text("Joueur introuvable : " + args[1] + " (il doit être connecté, ou s'être déjà connecté au serveur).", NamedTextColor.RED));
+            return;
+        }
         double amount;
         try {
             amount = Double.parseDouble(args[2]);
@@ -278,11 +288,38 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(Component.text("✅ " + label + " remises à zéro pour " + who + ".", NamedTextColor.GREEN));
     }
 
+    /** /bounty merchant spawn : place un Marchand Pirate ici ; /bounty merchant remove : retire le plus proche. */
+    private void handleMerchant(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Component.text("Cette commande doit être utilisée en jeu.", NamedTextColor.RED));
+            return;
+        }
+        String action = args.length > 1 ? args[1].toLowerCase() : "";
+        switch (action) {
+            case "spawn" -> {
+                plugin.getMerchantListener().spawn(player.getLocation());
+                sender.sendMessage(Component.text("✅ Marchand Pirate placé ici. Clic droit dessus = ouvre la boutique.", NamedTextColor.GREEN));
+            }
+            case "remove" -> {
+                if (plugin.getMerchantListener().removeNearest(player, 6)) {
+                    sender.sendMessage(Component.text("✅ Marchand le plus proche supprimé.", NamedTextColor.GREEN));
+                } else {
+                    sender.sendMessage(Component.text("Aucun Marchand Pirate à moins de 6 blocs.", NamedTextColor.RED));
+                }
+            }
+            default -> sender.sendMessage(Component.text("Usage : /bounty merchant <spawn|remove>", NamedTextColor.RED));
+        }
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> subs = new ArrayList<>(List.of("add", "pay"));
         if (sender.hasPermission("bountysmp.admin")) {
-            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily"));
+            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily", "merchant"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
@@ -293,6 +330,9 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("reset")) {
             return List.of("CONFIRMER").stream().filter(s -> s.startsWith(args[1].toUpperCase())).collect(Collectors.toList());
+        }
+        if (args[0].equalsIgnoreCase("merchant") && args.length == 2 && sender.hasPermission("bountysmp.admin")) {
+            return List.of("spawn", "remove").stream().filter(x -> x.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
         }
         if (args[0].equalsIgnoreCase("daily")) {
             if (args.length == 2) {

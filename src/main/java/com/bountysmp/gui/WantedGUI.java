@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Players;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Icons;
 import com.bountysmp.util.Sfx;
@@ -58,7 +59,7 @@ public class WantedGUI implements Listener {
             if (shown >= 7) break;
             OfflinePlayer op = Bukkit.getOfflinePlayer(data.getUuid());
             // Ignore les entrées "fantômes" (joueur inexistant ou jamais connecté au serveur)
-            if (op.getName() == null || !op.hasPlayedBefore()) {
+            if (!Players.isReal(op)) {
                 continue;
             }
             String name = op.getName();

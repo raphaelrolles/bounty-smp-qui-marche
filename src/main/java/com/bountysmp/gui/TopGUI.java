@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import com.bountysmp.util.Players;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Icons;
 import com.bountysmp.util.Sfx;
@@ -53,7 +54,7 @@ public class TopGUI implements Listener {
         for (PlayerData data : candidates) {
             if (shown >= 7) break;
             OfflinePlayer op = Bukkit.getOfflinePlayer(data.getUuid());
-            if (op.getName() == null || !op.hasPlayedBefore()) {
+            if (!Players.isReal(op)) {
                 rank++;
                 continue;
             }

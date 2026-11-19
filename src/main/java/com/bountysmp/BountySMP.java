@@ -17,6 +17,7 @@ import com.bountysmp.listeners.ChaosGrenadeListener;
 import com.bountysmp.listeners.DashItemListener;
 import com.bountysmp.listeners.FakeIngotListener;
 import com.bountysmp.listeners.LuckyPurseListener;
+import com.bountysmp.listeners.MerchantListener;
 import com.bountysmp.listeners.PlayerDeathListener;
 import com.bountysmp.listeners.PickpocketListener;
 import com.bountysmp.listeners.RecallStoneListener;
@@ -44,6 +45,7 @@ public final class BountySMP extends JavaPlugin {
     private QuestManager questManager;
     private QuestGUI questGUI;
     private ThemeGUI themeGUI;
+    private MerchantListener merchantListener;
 
     @Override
     public void onEnable() {
@@ -98,6 +100,8 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RecallStoneListener(this), this);
         getServer().getPluginManager().registerEvents(questGUI, this);
         getServer().getPluginManager().registerEvents(themeGUI, this);
+        this.merchantListener = new MerchantListener(this);
+        getServer().getPluginManager().registerEvents(merchantListener, this);
         QuestListener questListener = new QuestListener(this, questManager);
         getServer().getPluginManager().registerEvents(questListener, this);
         // temps de jeu des quêtes : +1 minute active chaque minute
@@ -159,5 +163,9 @@ public final class BountySMP extends JavaPlugin {
 
     public ThemeGUI getThemeGUI() {
         return themeGUI;
+    }
+
+    public MerchantListener getMerchantListener() {
+        return merchantListener;
     }
 }
