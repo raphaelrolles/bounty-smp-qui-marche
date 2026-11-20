@@ -1,0 +1,136 @@
+# ================================
+#   Configuration - Bounty SMP
+# ================================
+
+# Récompense de base pour un kill "normal" (joueur sans prime) - boostée pour rendre les coins plus faciles à obtenir
+kill-reward: 15
+
+# Anti-farm : si tu tues LE MEME joueur plusieurs fois avant ce délai (en secondes),
+# la récompense est fortement réduite pour éviter le farm entre amis.
+anti-farm:
+  cooldown-seconds: 600
+  reduced-reward: 3
+
+# Système de danger automatique : plus un joueur enchaine les kills dans une fenêtre
+# de temps donnée, plus sa prime augmente automatiquement (bonus augmentés).
+danger:
+  window-seconds: 600
+  # Nombre de kills (dans la fenêtre) -> bonus de prime ajouté (une seule fois par palier)
+  thresholds:
+    1: 20
+    3: 80
+    5: 150
+    10: 400
+
+# Prix de la boutique /bounty shop
+shop:
+  tracker-price: 30
+  iron-kit-price: 70
+  diamond-kit-price: 220
+  netherite-kit-price: 800
+  hunter-kit-price: 120
+  smoke-bomb-price: 45
+  chaos-grenade-price: 70
+  dash-item-price: 60
+  rage-vial-price: 50
+  fake-ingot-price: 35
+  stink-bomb-price: 40
+  lucky-purse-price: 50
+  spy-eye-price: 40
+  pickpocket-price: 70
+  recall-stone-price: 60
+
+# Cooldowns des objets (façon perle d'ender), en secondes - courts pour plus de dynamisme
+item-cooldowns:
+  smoke-bomb-seconds: 12
+  dash-item-seconds: 10
+  chaos-grenade-seconds: 10
+  rage-vial-seconds: 12
+  stink-bomb-seconds: 10
+  spy-eye-seconds: 10
+  recall-stone-seconds: 20
+
+# Échange de minerais contre des Bounty Coins (via /sell) - taux généreux, limite quotidienne large
+ore-exchange:
+  diamond-rate: 8
+  emerald-rate: 4
+  netherite-ingot-rate: 50
+  gold-ingot-rate: 2
+  iron-ingot-rate: 1
+  daily-limit: 8
+
+# Objet Tracker : cooldown (façon perle d'ender) et imprécision des coordonnées
+tracker:
+  cooldown-seconds: 15
+  imprecision-blocks: 40
+
+# Fumigène du Fugitif : rayon (en blocs) dans lequel les joueurs proches sont aveuglés
+smoke-bomb:
+  blind-radius: 6.0
+
+# Élan du Chasseur : force de la propulsion
+dash-item:
+  strength: 2.2
+
+# Œil de Judas : imprécision de la distance annoncée (en %)
+spy-eye:
+  imprecision-percent: 20
+
+# Bourse Trouée : montant volé et portée maximale (en blocs)
+pickpocket:
+  steal-amount: 15
+  max-range: 10.0
+
+# Bourse Chanceuse : gain minimum et jackpot (en coins)
+lucky-purse:
+  min-reward: 0
+  jackpot-reward: 300
+
+# Resource pack (BountySMP-ResourcePack.zip) : textures des items et fonds des menus.
+# Mets false pour revenir à des menus/icônes vanilla (si tu n'utilises pas le pack).
+resource-pack:
+  enabled: true
+
+# Renouvellement des quêtes et des offres du jour (à minuit dans ce fuseau horaire)
+daily:
+  timezone: "Europe/Paris"
+
+# Quêtes quotidiennes (3 par jour : facile / moyenne / difficile) + bonus si les 3 sont finies
+quests:
+  reward-easy: 30
+  reward-medium: 60
+  reward-hard: 120
+  bonus-reward: 50
+
+# Offres du jour (page 4 de la boutique) : réduction aléatoire entre ces bornes (multiples de 5)
+deals:
+  min-discount: 25
+  max-discount: 50
+
+# Pierre de Rappel : secondes d'immobilité avant le retour au lit (ou au spawn)
+recall-stone:
+  channel-seconds: 8
+
+# Têtes de trophée : un joueur tué en PvP laisse sa tête, vendable avec /sell.
+# La valeur est figée au moment du kill. "farm" = même victime tuée plusieurs fois dans la fenêtre anti-farm.
+trophy:
+  enabled: true
+  head-value: 25
+  wanted-head-value: 75
+  farm-head-value: 1
+
+# /pay : montant minimum et taxe (en %, 0 = aucune) prélevée sur chaque envoi
+pay:
+  min-amount: 1
+  tax-percent: 0
+
+# Combat tag : se déconnecter en combat (PvP) = mort. Les nouveaux joueurs sont protégés du PvP pendant leur première session.
+combat:
+  enabled: true
+  tag-seconds: 15
+  newbie-protection-seconds: 300
+
+# Zone sans PvP autour du spawn du monde principal (fais /setworldspawn au centre de ton spawn)
+spawn-protection:
+  enabled: true
+  radius: 40

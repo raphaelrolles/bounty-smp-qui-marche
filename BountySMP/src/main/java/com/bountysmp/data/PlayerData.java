@@ -1,0 +1,293 @@
+package com.bountysmp.data;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * Représente toutes les données Bounty SMP d'un joueur.
+ */
+public class PlayerData {
+
+    private final UUID uuid;
+
+    private double coins = 0;
+    private double bounty = 0;
+
+    // Qui a mis combien sur la prime de ce joueur (nom du contributeur -> montant)
+    private final Map<String, Double> bountyContributors = new LinkedHashMap<>();
+
+    // Horodatage des kills récents de ce joueur, pour le système de danger automatique
+    private final Deque<Long> recentKillTimestamps = new ArrayDeque<>();
+
+    // Paliers de danger déjà déclenchés pendant la "série" en cours
+    private final Set<Integer> triggeredThresholds = new HashSet<>();
+
+    // Dernière fois que ce joueur a tué telle victime (anti-farm)
+    private final Map<UUID, Long> lastKillOnVictim = new HashMap<>();
+
+    // Nombre de primes récupérées (réputation)
+    private int bountiesClaimed = 0;
+
+    // Objets achetés une seule fois en boutique (ex: "diamond_kit", "netherite_kit")
+    private final Set<String> oneTimePurchases = new HashSet<>();
+
+    // Joueur actuellement traqué avec le Tracker (choisi via /wanted ou le menu du tracker)
+    private UUID trackerTarget;
+
+    // Timestamp (ms) jusqu'auquel le tracker est en cooldown
+    private long trackerCooldownUntil = 0L;
+
+    // Limite quotidienne d'échanges de minerais contre des coins
+    private int oreExchangesToday = 0;
+    private long oreExchangeEpochDay = -1L;
+
+    // Succès personnalisés déjà obtenus
+    private boolean firstPurchaseAchievement = false;
+    private boolean firstBountyAchievement = false;
+
+    // Timestamp (ms) jusqu'auquel les signaux du Tracker sur ce joueur sont brouillés (Élixir du Menteur)
+    private long decoyUntil = 0L;
+
+    // Quêtes quotidiennes : progression par type de quête, récompenses déjà reçues
+    private long questsEpochDay = -1L;
+    private final Map<String, Integer> questProgress = new HashMap<>();
+    private final Set<String> questsRewarded = new HashSet<>();
+    private boolean questBonusClaimed = false;
+
+    // Offres du jour : jour courant + offres déjà achetées aujourd'hui
+    private long dealsEpochDay = -1L;
+    private final Set<String> dealsBought = new HashSet<>();
+
+    // Thème visuel choisi pour le menu /bounty (voir MenuTheme)
+    private String menuTheme = "pirate";
+
+    // Statistiques (/stats)
+    private int kills, deaths, trophiesSold, pickpockets, questsDone;
+    private double highestBounty;
+
+    public PlayerData(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public double getCoins() {
+        return coins;
+    }
+
+    public void setCoins(double coins) {
+        this.coins = Math.max(0, coins);
+    }
+
+    public void addCoins(double amount) {
+        this.coins = Math.max(0, this.coins + amount);
+    }
+
+    public double getBounty() {
+        return bounty;
+    }
+
+    public void setBounty(double bounty) {
+        this.bounty = Math.max(0, bounty);
+    }
+
+    public void addBounty(double amount) {
+        this.bounty = Math.max(0, this.bounty + amount);
+    }
+
+    public Map<String, Double> getBountyContributors() {
+        return bountyContributors;
+    }
+
+    public void addContribution(String contributorName, double amount) {
+        bountyContributors.merge(contributorName, amount, Double::sum);
+        addBounty(amount);
+    }
+
+    public void clearBounty() {
+        this.bounty = 0;
+        this.bountyContributors.clear();
+    }
+
+    public Deque<Long> getRecentKillTimestamps() {
+        return recentKillTimestamps;
+    }
+
+    public Set<Integer> getTriggeredThresholds() {
+        return triggeredThresholds;
+    }
+
+    public Map<UUID, Long> getLastKillOnVictim() {
+        return lastKillOnVictim;
+    }
+
+    public int getBountiesClaimed() {
+        return bountiesClaimed;
+    }
+
+    public void incrementBountiesClaimed() {
+        this.bountiesClaimed++;
+    }
+
+    public void setBountiesClaimed(int value) {
+        this.bountiesClaimed = value;
+    }
+
+    public Set<String> getOneTimePurchases() {
+        return oneTimePurchases;
+    }
+
+    public boolean hasPurchased(String id) {
+        return oneTimePurchases.contains(id);
+    }
+
+    public UUID getTrackerTarget() {
+        return trackerTarget;
+    }
+
+    public void setTrackerTarget(UUID trackerTarget) {
+        this.trackerTarget = trackerTarget;
+    }
+
+    public long getTrackerCooldownUntil() {
+        return trackerCooldownUntil;
+    }
+
+    public void setTrackerCooldownUntil(long trackerCooldownUntil) {
+        this.trackerCooldownUntil = trackerCooldownUntil;
+    }
+
+    public int getOreExchangesToday() {
+        return oreExchangesToday;
+    }
+
+    public void setOreExchangesToday(int value) {
+        this.oreExchangesToday = value;
+    }
+
+    public long getOreExchangeEpochDay() {
+        return oreExchangeEpochDay;
+    }
+
+    public void setOreExchangeEpochDay(long value) {
+        this.oreExchangeEpochDay = value;
+    }
+
+    public boolean isFirstPurchaseAchievement() {
+        return firstPurchaseAchievement;
+    }
+
+    public void setFirstPurchaseAchievement(boolean value) {
+        this.firstPurchaseAchievement = value;
+    }
+
+    public boolean isFirstBountyAchievement() {
+        return firstBountyAchievement;
+    }
+
+    public void setFirstBountyAchievement(boolean value) {
+        this.firstBountyAchievement = value;
+    }
+
+    public long getDecoyUntil() {
+        return decoyUntil;
+    }
+
+    public void setDecoyUntil(long decoyUntil) {
+        this.decoyUntil = decoyUntil;
+    }
+
+    public long getQuestsEpochDay() {
+        return questsEpochDay;
+    }
+
+    public void setQuestsEpochDay(long day) {
+        this.questsEpochDay = day;
+    }
+
+    public Map<String, Integer> getQuestProgress() {
+        return questProgress;
+    }
+
+    public Set<String> getQuestsRewarded() {
+        return questsRewarded;
+    }
+
+    public boolean isQuestBonusClaimed() {
+        return questBonusClaimed;
+    }
+
+    public void setQuestBonusClaimed(boolean value) {
+        this.questBonusClaimed = value;
+    }
+
+    /** Remet les quêtes à zéro pour un nouveau jour. */
+    public void resetQuests(long day) {
+        this.questsEpochDay = day;
+        this.questProgress.clear();
+        this.questsRewarded.clear();
+        this.questBonusClaimed = false;
+    }
+
+    public long getDealsEpochDay() {
+        return dealsEpochDay;
+    }
+
+    public void setDealsEpochDay(long day) {
+        this.dealsEpochDay = day;
+    }
+
+    public Set<String> getDealsBought() {
+        return dealsBought;
+    }
+
+    /** Remet les achats d'offres du jour à zéro pour un nouveau jour. */
+    public void resetDeals(long day) {
+        this.dealsEpochDay = day;
+        this.dealsBought.clear();
+    }
+
+    public String getMenuTheme() {
+        return menuTheme;
+    }
+
+    public void setMenuTheme(String menuTheme) {
+        this.menuTheme = menuTheme;
+    }
+
+    public int getKills() { return kills; }
+    public int getDeaths() { return deaths; }
+    public int getTrophiesSold() { return trophiesSold; }
+    public int getPickpockets() { return pickpockets; }
+    public int getQuestsDone() { return questsDone; }
+    public double getHighestBounty() { return highestBounty; }
+
+    public void addKills() { kills++; }
+    public void addDeaths() { deaths++; }
+    public void addTrophiesSold(int n) { trophiesSold += n; }
+    public void addPickpockets() { pickpockets++; }
+    public void addQuestsDone() { questsDone++; }
+
+    public void updateHighestBounty(double value) {
+        if (value > highestBounty) {
+            highestBounty = value;
+        }
+    }
+
+    public void loadStats(int kills, int deaths, double highestBounty, int trophiesSold, int pickpockets, int questsDone) {
+        this.kills = kills;
+        this.deaths = deaths;
+        this.highestBounty = highestBounty;
+        this.trophiesSold = trophiesSold;
+        this.pickpockets = pickpockets;
+        this.questsDone = questsDone;
+    }
+}

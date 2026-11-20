@@ -1,0 +1,34 @@
+name: BountySMP
+version: 1.0.0
+main: com.bountysmp.BountySMP
+api-version: 1.21
+author: BountySMP
+description: Plugin de chasse aux primes pour SMP vanilla (Bounty Coins, boutique, tracker).
+
+commands:
+  bounty:
+    description: Commande principale du système de primes (ouvre le menu si sans argument).
+    usage: /bounty [add|addcoins|removecoins|addadmin|reset|inv|enderchest|daily|merchant] ...
+  sell:
+    description: Ouvre un menu où déposer des minerais à vendre contre des Bounty Coins.
+    usage: /sell
+  shop:
+    description: Ouvre la boutique Bounty.
+    usage: /shop
+  balance:
+    description: Affiche ton solde de Bounty Coins.
+    usage: /balance [joueur]
+  stats:
+    description: Affiche tes statistiques de chasseur de primes.
+    usage: /stats [joueur]
+  pay:
+    description: Envoie des Bounty Coins à un autre joueur.
+    usage: /pay <joueur> <montant>
+
+permissions:
+  bountysmp.admin:
+    description: Permet d'utiliser les commandes admin du plugin.
+    default: op
+  bountysmp.use:
+    description: Permet d'utiliser les commandes joueur du plugin.
+    default: true
