@@ -52,6 +52,7 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
             case "enderchest" -> handleViewEnderChest(sender, args);
             case "daily" -> handleDaily(sender, args);
             case "merchant" -> handleMerchant(sender, args);
+            case "reload" -> handleReload(sender);
             case "pay" -> PayCommand.transfer(plugin, sender, args.length > 1 ? args[1] : null, args.length > 2 ? args[2] : null);
             default -> sender.sendMessage(Component.text("Commande inconnue. Utilisez /bounty ou /bounty add <joueur> <montant>.", NamedTextColor.RED));
         }
@@ -315,11 +316,23 @@ public class BountyCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /** /bounty reload : relit config.yml sans redémarrer le serveur. */
+    private void handleReload(CommandSender sender) {
+        if (!sender.hasPermission("bountysmp.admin")) {
+            sender.sendMessage(Component.text("Tu n'as pas la permission.", NamedTextColor.RED));
+            return;
+        }
+        plugin.reloadConfig();
+        plugin.getShopGUI().reload();
+        plugin.getQuestManager().invalidate();
+        sender.sendMessage(Component.text("✅ Configuration rechargée.", NamedTextColor.GREEN));
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> subs = new ArrayList<>(List.of("add", "pay"));
         if (sender.hasPermission("bountysmp.admin")) {
-            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily", "merchant"));
+            subs.addAll(List.of("addcoins", "removecoins", "addadmin", "reset", "inv", "enderchest", "daily", "merchant", "reload"));
         }
         if (args.length == 1) {
             return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());

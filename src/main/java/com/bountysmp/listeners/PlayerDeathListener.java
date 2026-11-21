@@ -43,6 +43,11 @@ public class PlayerDeathListener implements Listener {
         double bountyOnVictim = victimData.getBounty();
         boolean farmKill = isRecentKill(killerData, victim.getUniqueId());
         plugin.getQuestManager().add(killer, QuestType.KILL_PLAYERS, 1);
+        killerData.addKills();
+        victimData.addDeaths();
+        victimData.updateHighestBounty(victimData.getBounty());
+        if (killerData.getKills() >= 1) plugin.getAchievementUtil().award(killer, "first_blood");
+        if (killerData.getKills() >= 10) plugin.getAchievementUtil().award(killer, "serial_killer");
         Component gain;
         if (bountyOnVictim > 0) {
             killerData.addCoins(bountyOnVictim);
@@ -58,6 +63,9 @@ public class PlayerDeathListener implements Listener {
             }
             if (killerData.getBountiesClaimed() == 5) {
                 plugin.getAchievementUtil().awardSeasonedHunter(killer);
+            }
+            if (killerData.getBountiesClaimed() >= 25) {
+                plugin.getAchievementUtil().award(killer, "legend");
             }
 
             Bukkit.broadcast(Component.text("☠ ", NamedTextColor.DARK_RED)

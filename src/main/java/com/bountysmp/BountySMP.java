@@ -4,6 +4,7 @@ import com.bountysmp.commands.BalanceCommand;
 import com.bountysmp.commands.BountyCommand;
 import com.bountysmp.commands.PayCommand;
 import com.bountysmp.commands.SellCommand;
+import com.bountysmp.commands.StatsCommand;
 import com.bountysmp.commands.ShopCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
@@ -16,6 +17,7 @@ import com.bountysmp.gui.WantedGUI;
 import com.bountysmp.listeners.ChaosGrenadeListener;
 import com.bountysmp.listeners.DashItemListener;
 import com.bountysmp.listeners.FakeIngotListener;
+import com.bountysmp.listeners.CombatListener;
 import com.bountysmp.listeners.LuckyPurseListener;
 import com.bountysmp.listeners.MerchantListener;
 import com.bountysmp.listeners.PlayerDeathListener;
@@ -46,6 +48,7 @@ public final class BountySMP extends JavaPlugin {
     private QuestGUI questGUI;
     private ThemeGUI themeGUI;
     private MerchantListener merchantListener;
+    private CombatListener combatListener;
 
     @Override
     public void onEnable() {
@@ -66,6 +69,7 @@ public final class BountySMP extends JavaPlugin {
         this.themeGUI = new ThemeGUI(this);
         this.achievementUtil = new AchievementUtil(this);
         this.achievementUtil.registerAdvancements();
+        getLogger().info("BountySMP v" + getDescription().getVersion() + " chargé : " + achievementUtil.total() + " succès, /stats, /pay, /balance, quêtes, offres du jour, marchand, combat tag.");
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
@@ -78,6 +82,15 @@ public final class BountySMP extends JavaPlugin {
         PayCommand payCommand = new PayCommand(this);
         getCommand("pay").setExecutor(payCommand);
         getCommand("pay").setTabCompleter(payCommand);
+        StatsCommand statsCommand = new StatsCommand(this);
+        getCommand("stats").setExecutor(statsCommand);
+        getCommand("stats").setTabCompleter(statsCommand);
+        // succès "à seuil" (solde, prime) : vérifiés toutes les 30 s pour les joueurs connectés
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            for (org.bukkit.entity.Player online : getServer().getOnlinePlayers()) {
+                achievementUtil.checkThresholds(online);
+            }
+        }, 200L, 600L);
         getCommand("shop").setExecutor(new ShopCommand(this));
 
         // Listeners
@@ -102,6 +115,9 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(themeGUI, this);
         this.merchantListener = new MerchantListener(this);
         getServer().getPluginManager().registerEvents(merchantListener, this);
+        this.combatListener = new CombatListener(this);
+        getServer().getPluginManager().registerEvents(combatListener, this);
+        getServer().getScheduler().runTaskTimer(this, combatListener::tickExpiry, 20L, 20L);
         QuestListener questListener = new QuestListener(this, questManager);
         getServer().getPluginManager().registerEvents(questListener, this);
         // temps de jeu des quêtes : +1 minute active chaque minute
@@ -167,5 +183,9 @@ public final class BountySMP extends JavaPlugin {
 
     public MerchantListener getMerchantListener() {
         return merchantListener;
+    }
+
+    public CombatListener getCombatListener() {
+        return combatListener;
     }
 }

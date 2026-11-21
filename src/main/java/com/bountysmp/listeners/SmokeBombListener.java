@@ -56,14 +56,14 @@ public class SmokeBombListener implements Listener {
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.smoke-bomb-seconds", 25);
         player.setCooldown(Material.FIREWORK_ROCKET, cooldownSeconds * 20);
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 10, 0));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20 * plugin.getConfig().getInt("smoke-bomb.invisibility-seconds", 10), 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * plugin.getConfig().getInt("smoke-bomb.speed-seconds", 10), Math.max(0, plugin.getConfig().getInt("smoke-bomb.speed-level", 2) - 1)));
 
         // Aveugle brièvement les joueurs proches (les chasseurs à ta poursuite) pour faciliter la fuite
         double radius = plugin.getConfig().getDouble("smoke-bomb.blind-radius", 6.0);
         for (org.bukkit.entity.Entity nearby : player.getNearbyEntities(radius, radius, radius)) {
             if (nearby instanceof Player otherPlayer) {
-                otherPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 2, 0));
+                otherPlayer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * plugin.getConfig().getInt("smoke-bomb.blind-seconds", 2), 0));
             }
         }
 

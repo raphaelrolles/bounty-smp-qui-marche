@@ -1,6 +1,7 @@
 package com.bountysmp.gui;
 
 import com.bountysmp.BountySMP;
+import org.bukkit.configuration.ConfigurationSection;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.util.Trophy;
@@ -58,7 +59,7 @@ public class SellGUI implements Listener {
 
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
 
-        int dailyLimit = plugin.getConfig().getInt("ore-exchange.daily-limit", 8);
+        int dailyLimit = plugin.getConfig().getInt("sell.daily-limit", 8);
         long today = currentEpochDay();
         if (data.getOreExchangeEpochDay() != today) {
             data.setOreExchangeEpochDay(today);
@@ -73,13 +74,17 @@ public class SellGUI implements Listener {
         }
 
         Map<Material, Double> rates = new LinkedHashMap<>();
-        rates.put(Material.DIAMOND, plugin.getConfig().getDouble("ore-exchange.diamond-rate", 8));
-        rates.put(Material.EMERALD, plugin.getConfig().getDouble("ore-exchange.emerald-rate", 4));
-        rates.put(Material.NETHERITE_INGOT, plugin.getConfig().getDouble("ore-exchange.netherite-ingot-rate", 50));
-        rates.put(Material.GOLD_INGOT, plugin.getConfig().getDouble("ore-exchange.gold-ingot-rate", 2));
-        rates.put(Material.IRON_INGOT, plugin.getConfig().getDouble("ore-exchange.iron-ingot-rate", 1));
-        rates.put(Material.RAW_GOLD, plugin.getConfig().getDouble("ore-exchange.gold-ingot-rate", 2));
-        rates.put(Material.RAW_IRON, plugin.getConfig().getDouble("ore-exchange.iron-ingot-rate", 1));
+        ConfigurationSection rateSection = plugin.getConfig().getConfigurationSection("sell.rates");
+        if (rateSection != null) {
+            for (String rateKey : rateSection.getKeys(false)) {
+                Material rateMaterial = Material.matchMaterial(rateKey);
+                if (rateMaterial != null) {
+                    rates.put(rateMaterial, rateSection.getDouble(rateKey));
+                } else {
+                    plugin.getLogger().warning("sell.rates : matériau inconnu '" + rateKey + "' (ignoré)");
+                }
+            }
+        }
 
         double total = 0;
         int trophies = 0;
@@ -121,6 +126,8 @@ public class SellGUI implements Listener {
         if (trophies > 0) {
             if (detail.length() > 0) detail.append(", ");
             detail.append(trophies).append(trophies > 1 ? " têtes" : " tête");
+            data.addTrophiesSold(trophies);
+            plugin.getAchievementUtil().award(player, "collector");
         }
 
         String detailText = detail.length() <= 28 ? " (" + detail + ")" : "";

@@ -77,16 +77,30 @@ public class QuestManager {
     }
 
     private int targetFor(QuestType type, Tier tier) {
+        int base = plugin.getConfig().getInt("quests.targets." + type.name(), defaultTarget(type));
+        boolean easyType = type == QuestType.KILL_MOBS || type == QuestType.FISH || type == QuestType.PLAYTIME;
+        if (tier == Tier.MEDIUM && easyType) {
+            base = (int) Math.round(base * plugin.getConfig().getDouble("quests.medium-multiplier", 2.25));
+        }
+        return Math.max(1, base);
+    }
+
+    private int defaultTarget(QuestType type) {
         return switch (type) {
             case BREAK_LOGS -> 48;
-            case KILL_MOBS -> tier == Tier.EASY ? 20 : 45;
-            case FISH -> tier == Tier.EASY ? 8 : 20;
-            case PLAYTIME -> tier == Tier.EASY ? 20 : 45;
+            case KILL_MOBS -> 20;
+            case FISH -> 8;
+            case PLAYTIME -> 20;
             case MINE_ORES -> 40;
             case MINE_DIAMOND -> 8;
             case KILL_PLAYERS -> 2;
             case CLAIM_BOUNTY -> 1;
         };
+    }
+
+    /** Force la régénération des quêtes (après /bounty reload). */
+    public void invalidate() {
+        cachedDay = Long.MIN_VALUE;
     }
 
     /** Si le joueur n'a pas encore ses quêtes d'aujourd'hui, on remet sa progression à zéro. */
@@ -126,6 +140,7 @@ public class QuestManager {
             return;
         }
         data.addCoins(quest.reward());
+        data.addQuestsDone();
         player.sendActionBar(Component.text("✔ Quête terminée : ", NamedTextColor.GREEN)
                 .append(Component.text(quest.title(), NamedTextColor.WHITE))
                 .append(Component.text("  +" + quest.reward() + " coins", NamedTextColor.GOLD)));
@@ -140,6 +155,7 @@ public class QuestManager {
         }
         if (all && !data.isQuestBonusClaimed()) {
             data.setQuestBonusClaimed(true);
+            plugin.getAchievementUtil().award(player, "quest_master");
             int bonus = plugin.getConfig().getInt("quests.bonus-reward", 50);
             data.addCoins(bonus);
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {

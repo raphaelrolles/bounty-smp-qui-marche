@@ -65,6 +65,11 @@ public class RecallStoneListener implements Listener {
             Sfx.cooldown(player);
             return;
         }
+        if (plugin.getCombatListener() != null && plugin.getCombatListener().isTagged(player)) {
+            player.sendActionBar(Component.text("⚔ Impossible en combat !", NamedTextColor.RED));
+            Sfx.denied(player);
+            return;
+        }
         startChannel(player);
     }
 

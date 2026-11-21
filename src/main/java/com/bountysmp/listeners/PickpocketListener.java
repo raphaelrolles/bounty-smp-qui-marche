@@ -86,6 +86,8 @@ public class PickpocketListener implements Listener {
         playerData.addCoins(stolen);
         Sfx.coins(plugin, player);
         Sfx.robbed(target);
+        playerData.addPickpockets();
+        plugin.getAchievementUtil().award(player, "thief");
 
         player.sendActionBar(Component.text("🤏 Tu as volé ", NamedTextColor.YELLOW)
                 .append(Component.text(stolen + " coins", NamedTextColor.GOLD))

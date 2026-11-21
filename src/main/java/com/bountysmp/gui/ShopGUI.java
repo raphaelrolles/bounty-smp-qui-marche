@@ -134,7 +134,22 @@ public class ShopGUI implements Listener {
     // ================================================================= catalogue
     private void add(String id, Material icon, Integer cmd, String name, String priceKey, int defaultPrice,
                      List<String> lore, Rewarder reward) {
-        catalog.put(id, new Product(id, icon, cmd, name, priceKey, defaultPrice, lore, reward));
+        String base = "shop.items." + id;
+        var cfg = plugin.getConfig();
+        if (!cfg.getBoolean(base + ".enabled", true)) {
+            return; // objet masqué par la config
+        }
+        String finalName = cfg.getString(base + ".name", name).replace('&', '§');
+        List<String> custom = cfg.getStringList(base + ".lore");
+        List<String> finalLore = custom.isEmpty() ? lore : custom.stream().map(l -> l.replace('&', '§')).toList();
+        catalog.put(id, new Product(id, icon, cmd, finalName, priceKey, defaultPrice, finalLore, reward));
+    }
+
+    /** Recharge le catalogue après /bounty reload. */
+    public void reload() {
+        catalog.clear();
+        buildCatalog();
+        dealsCacheDay = Long.MIN_VALUE;
     }
 
     private void buildCatalog() {
@@ -249,6 +264,7 @@ public class ShopGUI implements Listener {
         int[] slots = PAGE_SLOTS[page];
         for (int i = 0; i < ids.length; i++) {
             Product p = catalog.get(ids[i]);
+            if (p == null) continue; // masqué dans la config
             List<String> lore = new ArrayList<>(p.lore());
             lore.add("");
             lore.add("§ePrix : " + price(p) + " coins");
@@ -259,18 +275,25 @@ public class ShopGUI implements Listener {
         }
     }
 
-    /** Texte de l'encart "/sell" (taux lus dans la config). */
+    /** Texte de l'encart "/sell" (taux lus dans la config : sell.rates). */
     private List<String> sellInfoLore() {
-        var cfg = plugin.getConfig();
-        return List.of(
-                "§7Commande : §f/sell",
-                "§7Dépose tes minerais puis ferme (Échap).",
-                "",
-                "§71 diamant = " + cfg.getInt("ore-exchange.diamond-rate", 8) + " coins",
-                "§71 émeraude = " + cfg.getInt("ore-exchange.emerald-rate", 4) + " coins",
-                "§71 lingot de netherite = " + cfg.getInt("ore-exchange.netherite-ingot-rate", 50) + " coins",
-                "§71 lingot d'or = " + cfg.getInt("ore-exchange.gold-ingot-rate", 2) + " coins",
-                "§71 lingot de fer = " + cfg.getInt("ore-exchange.iron-ingot-rate", 1) + " coin");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Commande : §f/sell");
+        lore.add("§7Dépose tes minerais puis ferme (Échap).");
+        lore.add("");
+        var section = plugin.getConfig().getConfigurationSection("sell.rates");
+        if (section != null) {
+            int shown = 0;
+            for (String key : section.getKeys(false)) {
+                if (shown++ >= 6) {
+                    lore.add("§8... et d'autres (voir la config)");
+                    break;
+                }
+                lore.add("§71 " + key.toLowerCase().replace('_', ' ') + " = " + section.getInt(key) + " coins");
+            }
+        }
+        lore.add("§7Têtes de trophée : valeur indiquée dessus.");
+        return lore;
     }
 
     // ================================================================= offres du jour
@@ -279,8 +302,9 @@ public class ShopGUI implements Listener {
         int salt = plugin.getDataManager().dealSalt(day);
         if (day != dealsCacheDay || salt != dealsCacheSalt) {
             List<Product> pool = new ArrayList<>();
+            List<String> excluded = plugin.getConfig().getStringList("deals.excluded");
             for (Product p : catalog.values()) {
-                if (!p.id().equals("netherite_kit")) {
+                if (!excluded.contains(p.id())) {
                     pool.add(p);
                 }
             }
@@ -289,7 +313,8 @@ public class ShopGUI implements Listener {
             int min = plugin.getConfig().getInt("deals.min-discount", 25);
             int max = Math.max(min, plugin.getConfig().getInt("deals.max-discount", 50));
             List<DealOffer> out = new ArrayList<>();
-            for (int i = 0; i < DEAL_SLOTS.length && i < pool.size(); i++) {
+            int dealCount = Math.max(1, Math.min(DEAL_SLOTS.length, plugin.getConfig().getInt("deals.count", 4)));
+            for (int i = 0; i < dealCount && i < pool.size(); i++) {
                 Product p = pool.get(i);
                 int percent = min + 5 * rnd.nextInt((max - min) / 5 + 1);
                 int discounted = Math.max(1, (int) Math.round(price(p) * (100 - percent) / 100.0));
@@ -348,6 +373,7 @@ public class ShopGUI implements Listener {
         currentItemId = offer.product().id();
         if (purchaseAt(player, data, offer.price(), offer.product().reward(), slot)) {
             data.getDealsBought().add(offer.product().id());
+            plugin.getAchievementUtil().award(player, "deal_hunter");
         }
     }
 

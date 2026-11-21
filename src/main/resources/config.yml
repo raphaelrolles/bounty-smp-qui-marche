@@ -1,46 +1,145 @@
-# ================================
-#   Configuration - Bounty SMP
-# ================================
+# =====================================================================
+#   BOUNTY SMP - CONFIGURATION
+# =====================================================================
+#  - Après une modification : tape /bounty reload (ou redémarre le serveur).
+#  - Dans les textes, écris & à la place de § pour les couleurs
+#    (&6 = or, &c = rouge, &a = vert, &7 = gris, &l = gras).
+#  - Les durées sont en SECONDES, les niveaux d'effet commencent à 1.
+#  - Ne change pas l'indentation (espaces) : c'est elle qui structure le fichier.
+# =====================================================================
 
-# Récompense de base pour un kill "normal" (joueur sans prime) - boostée pour rendre les coins plus faciles à obtenir
+
+# ---------------------------------------------------------------------
+#  1) KILLS, PRIMES ET DANGER
+# ---------------------------------------------------------------------
+# Coins gagnés en tuant un joueur SANS prime sur la tête.
 kill-reward: 15
 
-# Anti-farm : si tu tues LE MEME joueur plusieurs fois avant ce délai (en secondes),
-# la récompense est fortement réduite pour éviter le farm entre amis.
+# Anti-farm : tuer la MÊME victime plusieurs fois dans cette fenêtre
+# rapporte seulement "reduced-reward" (et sa tête de trophée vaut presque rien).
 anti-farm:
   cooldown-seconds: 600
   reduced-reward: 3
 
-# Système de danger automatique : plus un joueur enchaine les kills dans une fenêtre
-# de temps donnée, plus sa prime augmente automatiquement (bonus augmentés).
+# Danger automatique : plus tu enchaînes de kills (sur des joueurs SANS prime)
+# dans la fenêtre, plus ta propre prime monte toute seule.
+# Format : nombre-de-kills: bonus-de-prime  (chaque palier une seule fois par série)
+# Tuer un joueur RECHERCHÉ ne fait jamais monter ta prime.
 danger:
   window-seconds: 600
-  # Nombre de kills (dans la fenêtre) -> bonus de prime ajouté (une seule fois par palier)
   thresholds:
     1: 20
     3: 80
     5: 150
     10: 400
 
-# Prix de la boutique /bounty shop
+# Têtes de trophée : un joueur tué en PvP laisse sa tête, vendable avec /sell.
+# La valeur est figée au moment du kill. "farm" = même victime déjà tuée récemment.
+trophy:
+  enabled: true
+  head-value: 25
+  wanted-head-value: 75
+  farm-head-value: 1
+
+
+# ---------------------------------------------------------------------
+#  2) BOUTIQUE (/shop)
+# ---------------------------------------------------------------------
+# Prix en Bounty Coins. Pour masquer un objet, changer son nom ou sa description,
+# ajoute un bloc "items" DANS la section shop (exemple tout en bas du fichier).
 shop:
-  tracker-price: 30
   iron-kit-price: 70
   diamond-kit-price: 220
   netherite-kit-price: 800
   hunter-kit-price: 120
+  tracker-price: 30
   smoke-bomb-price: 45
+  rage-vial-price: 50
   chaos-grenade-price: 70
   dash-item-price: 60
-  rage-vial-price: 50
+  recall-stone-price: 60
   fake-ingot-price: 35
   stink-bomb-price: 40
   lucky-purse-price: 50
   spy-eye-price: 40
   pickpocket-price: 70
-  recall-stone-price: 60
+  # Exemple pour personnaliser un objet (retire les # et respecte l'indentation) :
+  # items:
+  #   tracker:
+  #     name: "&6Super Tracker"
+  #     lore:
+  #       - "&7Ligne de description 1"
+  #       - "&7Ligne de description 2"
+  #   netherite_kit:
+  #     enabled: false          # masque cet objet de la boutique
+  # Identifiants : iron_kit, diamond_kit, netherite_kit, hunter_kit, tracker, smoke_bomb,
+  # rage_vial, chaos_grenade, dash_item, recall_stone, fake_ingot, stink_bomb,
+  # lucky_purse, spy_eye, pickpocket
 
-# Cooldowns des objets (façon perle d'ender), en secondes - courts pour plus de dynamisme
+# Offres du jour (4e page de la boutique) : promos qui changent chaque jour à minuit.
+deals:
+  count: 4                # nombre d'offres affichées (1 à 4)
+  min-discount: 25        # réduction minimale en % (multiples de 5)
+  max-discount: 50        # réduction maximale en %
+  excluded:               # objets qui ne passent jamais en promo
+    - netherite_kit
+
+# Marchand Pirate (/bounty merchant spawn) : nom affiché au-dessus de sa tête.
+merchant:
+  name: "&6Marchand Pirate"
+
+
+# ---------------------------------------------------------------------
+#  3) ÉCONOMIE : VENTE, ENVOIS, QUÊTES
+# ---------------------------------------------------------------------
+# /sell : prix de vente par objet. Tu peux AJOUTER n'importe quel objet Minecraft
+# (nom en MAJUSCULES, ex. COAL, LAPIS_LAZULI, COPPER_INGOT, ANCIENT_DEBRIS...).
+# daily-limit = nombre de ventes maximum par joueur et par jour.
+sell:
+  daily-limit: 8
+  rates:
+    DIAMOND: 8
+    EMERALD: 4
+    NETHERITE_INGOT: 50
+    GOLD_INGOT: 2
+    IRON_INGOT: 1
+    RAW_GOLD: 2
+    RAW_IRON: 1
+
+# /pay : montant minimum et taxe en % prélevée sur chaque envoi (0 = aucune).
+pay:
+  min-amount: 1
+  tax-percent: 0
+
+# Quêtes quotidiennes : 3 par jour (facile / moyenne / difficile) + bonus si les 3 sont finies.
+quests:
+  reward-easy: 30
+  reward-medium: 60
+  reward-hard: 120
+  bonus-reward: 50
+  # Objectif de base de chaque type de quête.
+  targets:
+    BREAK_LOGS: 48       # bûches abattues
+    KILL_MOBS: 20        # monstres tués
+    FISH: 8              # poissons pêchés
+    PLAYTIME: 20         # minutes de jeu actif (anti-AFK)
+    MINE_ORES: 40        # minerais minés
+    MINE_DIAMOND: 8      # diamants minés
+    KILL_PLAYERS: 2      # joueurs tués
+    CLAIM_BOUNTY: 1      # primes encaissées
+  # Quand une quête "facile" (monstres, pêche, temps de jeu) tombe en niveau "moyen",
+  # son objectif est multiplié par ce nombre.
+  medium-multiplier: 2.25
+
+# Fuseau horaire utilisé pour le renouvellement quotidien (quêtes, offres, limite de vente).
+daily:
+  timezone: "Europe/Paris"
+
+
+# ---------------------------------------------------------------------
+#  4) OBJETS DE LA BOUTIQUE : COOLDOWNS ET EFFETS
+# ---------------------------------------------------------------------
+# Cooldown avant de pouvoir réutiliser l'objet (même affichage que la perle d'ender).
 item-cooldowns:
   smoke-bomb-seconds: 12
   dash-item-seconds: 10
@@ -50,76 +149,86 @@ item-cooldowns:
   spy-eye-seconds: 10
   recall-stone-seconds: 20
 
-# Échange de minerais contre des Bounty Coins (via /sell) - taux généreux, limite quotidienne large
-ore-exchange:
-  diamond-rate: 8
-  emerald-rate: 4
-  netherite-ingot-rate: 50
-  gold-ingot-rate: 2
-  iron-ingot-rate: 1
-  daily-limit: 8
-
-# Objet Tracker : cooldown (façon perle d'ender) et imprécision des coordonnées
+# Tracker : cooldown entre deux coordonnées et imprécision (en blocs) des coordonnées affichées.
 tracker:
   cooldown-seconds: 15
   imprecision-blocks: 40
 
-# Fumigène du Fugitif : rayon (en blocs) dans lequel les joueurs proches sont aveuglés
+# Feu d'Artifice du Fugitif.
 smoke-bomb:
+  invisibility-seconds: 10
+  speed-seconds: 10
+  speed-level: 2
+  blind-seconds: 2         # aveuglement des joueurs proches
   blind-radius: 6.0
 
-# Élan du Chasseur : force de la propulsion
+# Élan du Chasseur : puissance de la propulsion.
 dash-item:
   strength: 2.2
 
-# Œil de Judas : imprécision de la distance annoncée (en %)
+# Fiole de Rage.
+rage-vial:
+  strength-seconds: 15
+  strength-level: 1
+  fire-resistance-seconds: 15
+
+# Grenade du Chaos : effet négatif aléatoire (durée et niveau).
+chaos-grenade:
+  effect-seconds: 5
+  effect-level: 2
+
+# Bombe Puante.
+stink-bomb:
+  nausea-seconds: 10
+  poison-seconds: 5
+
+# Faux Lingot d'Or : malédiction (lenteur + faiblesse) sur celui qui le ramasse.
+fake-ingot:
+  curse-seconds: 10
+  curse-level: 2
+
+# Œil de Judas : imprécision (en %) de la distance annoncée.
 spy-eye:
   imprecision-percent: 20
 
-# Bourse Trouée : montant volé et portée maximale (en blocs)
+# Bourse Trouée : coins volés et portée maximale (en blocs).
 pickpocket:
   steal-amount: 15
   max-range: 10.0
 
-# Bourse Chanceuse : gain minimum et jackpot (en coins)
+# Bourse Chanceuse : probabilités en % (le reste = petit gain entre small-min et small-max).
 lucky-purse:
-  min-reward: 0
   jackpot-reward: 300
+  jackpot-chance-percent: 10
+  nothing-chance-percent: 30
+  small-min: 20
+  small-max: 80
 
-# Resource pack (BountySMP-ResourcePack.zip) : textures des items et fonds des menus.
-# Mets false pour revenir à des menus/icônes vanilla (si tu n'utilises pas le pack).
-resource-pack:
-  enabled: true
-
-# Renouvellement des quêtes et des offres du jour (à minuit dans ce fuseau horaire)
-daily:
-  timezone: "Europe/Paris"
-
-# Quêtes quotidiennes (3 par jour : facile / moyenne / difficile) + bonus si les 3 sont finies
-quests:
-  reward-easy: 30
-  reward-medium: 60
-  reward-hard: 120
-  bonus-reward: 50
-
-# Offres du jour (page 4 de la boutique) : réduction aléatoire entre ces bornes (multiples de 5)
-deals:
-  min-discount: 25
-  max-discount: 50
-
-# Pierre de Rappel : secondes d'immobilité avant le retour au lit (ou au spawn)
+# Pierre de Rappel : secondes d'immobilité avant le retour au lit (ou au spawn).
 recall-stone:
   channel-seconds: 8
 
-# Têtes de trophée : un joueur tué en PvP laisse sa tête, vendable avec /sell.
-# La valeur est figée au moment du kill. "farm" = même victime tuée plusieurs fois dans la fenêtre anti-farm.
-trophy:
-  enabled: true
-  head-value: 25
-  wanted-head-value: 75
-  farm-head-value: 1
 
-# /pay : montant minimum et taxe (en %, 0 = aucune) prélevée sur chaque envoi
-pay:
-  min-amount: 1
-  tax-percent: 0
+# ---------------------------------------------------------------------
+#  5) PVP : COMBAT, SPAWN, NOUVEAUX JOUEURS
+# ---------------------------------------------------------------------
+# Combat tag : se déconnecter en plein combat = mort. Les nouveaux joueurs sont
+# protégés du PvP pendant leur première session (0 pour désactiver cette protection).
+combat:
+  enabled: true
+  tag-seconds: 15
+  newbie-protection-seconds: 300
+
+# Zone sans PvP autour du spawn du monde principal (fais /setworldspawn au centre).
+spawn-protection:
+  enabled: true
+  radius: 40
+
+
+# ---------------------------------------------------------------------
+#  6) APPARENCE
+# ---------------------------------------------------------------------
+# Resource pack (BountySMP-ResourcePack.zip) : textures des objets et fonds des menus.
+# Mets false pour des menus et icônes 100 % vanilla (si tu n'utilises pas le pack).
+resource-pack:
+  enabled: true

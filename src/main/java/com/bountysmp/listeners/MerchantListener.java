@@ -49,7 +49,7 @@ public class MerchantListener implements Listener {
             villager.setPersistent(true);
             villager.setRemoveWhenFarAway(false);
             villager.setProfession(Villager.Profession.FISHERMAN);
-            villager.customName(Component.text("Marchand Pirate", NamedTextColor.GOLD));
+            villager.customName(Component.text(plugin.getConfig().getString("merchant.name", "&6Marchand Pirate").replace('&', '§')));
             villager.setCustomNameVisible(true);
             villager.getPersistentDataContainer().set(merchantKey, PersistentDataType.BYTE, (byte) 1);
         });

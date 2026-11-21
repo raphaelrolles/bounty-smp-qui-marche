@@ -57,8 +57,8 @@ public class RageVialListener implements Listener {
         int cooldownSeconds = plugin.getConfig().getInt("item-cooldowns.rage-vial-seconds", 25);
         player.setCooldown(Material.GLASS_BOTTLE, cooldownSeconds * 20);
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 15, 0));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 15, 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * plugin.getConfig().getInt("rage-vial.strength-seconds", 15), Math.max(0, plugin.getConfig().getInt("rage-vial.strength-level", 1) - 1)));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * plugin.getConfig().getInt("rage-vial.fire-resistance-seconds", 15), 0));
         player.getWorld().spawnParticle(org.bukkit.Particle.FLAME, player.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.02);
         Sfx.rage(plugin, player);
 

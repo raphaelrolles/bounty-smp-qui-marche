@@ -92,7 +92,7 @@ public class ChaosGrenadeListener implements Listener {
         if (!(event.getHitEntity() instanceof LivingEntity target)) return;
 
         PotionEffectType effect = EFFECTS.get(ThreadLocalRandom.current().nextInt(EFFECTS.size()));
-        target.addPotionEffect(new PotionEffect(effect, 20 * 5, 1));
+        target.addPotionEffect(new PotionEffect(effect, 20 * plugin.getConfig().getInt("chaos-grenade.effect-seconds", 5), Math.max(0, plugin.getConfig().getInt("chaos-grenade.effect-level", 2) - 1)));
         target.getWorld().spawnParticle(org.bukkit.Particle.WITCH, target.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.05);
         Sfx.grenadeHit(target.getLocation());
 

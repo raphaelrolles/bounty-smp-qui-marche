@@ -84,18 +84,22 @@ public class LuckyPurseListener implements Listener {
 
         // Détermine le résultat AVANT l'animation
         int jackpot = plugin.getConfig().getInt("lucky-purse.jackpot-reward", 300);
+        int jackpotChance = plugin.getConfig().getInt("lucky-purse.jackpot-chance-percent", 10);
+        int nothingChance = plugin.getConfig().getInt("lucky-purse.nothing-chance-percent", 30);
+        int smallMin = plugin.getConfig().getInt("lucky-purse.small-min", 20);
+        int smallMax = Math.max(smallMin + 1, plugin.getConfig().getInt("lucky-purse.small-max", 80));
         int roll = ThreadLocalRandom.current().nextInt(100);
         Tier resultTier;
         int reward;
-        if (roll < 10) {
+        if (roll < jackpotChance) {
             resultTier = Tier.JACKPOT;
             reward = jackpot;
-        } else if (roll < 40) {
+        } else if (roll < jackpotChance + nothingChance) {
             resultTier = Tier.NOTHING;
             reward = 0;
         } else {
             resultTier = Tier.SMALL;
-            reward = ThreadLocalRandom.current().nextInt(20, 80);
+            reward = ThreadLocalRandom.current().nextInt(smallMin, smallMax);
         }
 
         playCaseOpeningAnimation(player, resultTier, reward);

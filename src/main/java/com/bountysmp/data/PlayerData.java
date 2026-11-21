@@ -67,6 +67,10 @@ public class PlayerData {
     // Thème visuel choisi pour le menu /bounty (voir MenuTheme)
     private String menuTheme = "pirate";
 
+    // Statistiques (/stats)
+    private int kills, deaths, trophiesSold, pickpockets, questsDone;
+    private double highestBounty;
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -257,5 +261,33 @@ public class PlayerData {
 
     public void setMenuTheme(String menuTheme) {
         this.menuTheme = menuTheme;
+    }
+
+    public int getKills() { return kills; }
+    public int getDeaths() { return deaths; }
+    public int getTrophiesSold() { return trophiesSold; }
+    public int getPickpockets() { return pickpockets; }
+    public int getQuestsDone() { return questsDone; }
+    public double getHighestBounty() { return highestBounty; }
+
+    public void addKills() { kills++; }
+    public void addDeaths() { deaths++; }
+    public void addTrophiesSold(int n) { trophiesSold += n; }
+    public void addPickpockets() { pickpockets++; }
+    public void addQuestsDone() { questsDone++; }
+
+    public void updateHighestBounty(double value) {
+        if (value > highestBounty) {
+            highestBounty = value;
+        }
+    }
+
+    public void loadStats(int kills, int deaths, double highestBounty, int trophiesSold, int pickpockets, int questsDone) {
+        this.kills = kills;
+        this.deaths = deaths;
+        this.highestBounty = highestBounty;
+        this.trophiesSold = trophiesSold;
+        this.pickpockets = pickpockets;
+        this.questsDone = questsDone;
     }
 }

@@ -140,6 +140,8 @@ public class DataManager {
                 data.setDealsEpochDay(s.getLong("dealsEpochDay", -1L));
                 data.getDealsBought().addAll(s.getStringList("dealsBought"));
                 data.setMenuTheme(s.getString("menuTheme", "pirate"));
+                data.loadStats(s.getInt("kills", 0), s.getInt("deaths", 0), s.getDouble("highestBounty", 0),
+                        s.getInt("trophiesSold", 0), s.getInt("pickpockets", 0), s.getInt("questsDone", 0));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -201,6 +203,12 @@ public class DataManager {
             yaml.set(path + ".dealsEpochDay", data.getDealsEpochDay());
             yaml.set(path + ".dealsBought", new java.util.ArrayList<>(data.getDealsBought()));
             yaml.set(path + ".menuTheme", data.getMenuTheme());
+            yaml.set(path + ".kills", data.getKills());
+            yaml.set(path + ".deaths", data.getDeaths());
+            yaml.set(path + ".highestBounty", data.getHighestBounty());
+            yaml.set(path + ".trophiesSold", data.getTrophiesSold());
+            yaml.set(path + ".pickpockets", data.getPickpockets());
+            yaml.set(path + ".questsDone", data.getQuestsDone());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }

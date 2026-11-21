@@ -88,8 +88,8 @@ public class StinkBombListener implements Listener {
         if (!event.getEntity().hasMetadata(METADATA_KEY)) return;
         if (!(event.getHitEntity() instanceof LivingEntity target)) return;
 
-        target.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 20 * 10, 0));
-        target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 20 * 5, 0));
+        target.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 20 * plugin.getConfig().getInt("stink-bomb.nausea-seconds", 10), 0));
+        target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 20 * plugin.getConfig().getInt("stink-bomb.poison-seconds", 5), 0));
         target.getWorld().spawnParticle(org.bukkit.Particle.ITEM_SLIME, target.getLocation().add(0, 1, 0), 25, 0.4, 0.6, 0.4, 0.05);
         Sfx.stinkHit(target.getLocation());
 

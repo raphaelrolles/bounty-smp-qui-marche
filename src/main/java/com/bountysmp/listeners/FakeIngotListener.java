@@ -55,8 +55,8 @@ public class FakeIngotListener implements Listener {
         event.setCancelled(true);
         event.getItem().remove();
 
-        picker.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 * 10, 1));
-        picker.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 10, 1));
+        picker.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 20 * plugin.getConfig().getInt("fake-ingot.curse-seconds", 10), Math.max(0, plugin.getConfig().getInt("fake-ingot.curse-level", 2) - 1)));
+        picker.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * plugin.getConfig().getInt("fake-ingot.curse-seconds", 10), Math.max(0, plugin.getConfig().getInt("fake-ingot.curse-level", 2) - 1)));
         picker.getWorld().spawnParticle(org.bukkit.Particle.SMOKE, picker.getLocation().add(0, 1, 0), 20, 0.3, 0.5, 0.3, 0.02);
         Sfx.curse(picker.getLocation());
         picker.sendActionBar(Component.text("💰 Ce lingot était un piège du Marché Noir... Tu es maudit !", NamedTextColor.DARK_RED));
