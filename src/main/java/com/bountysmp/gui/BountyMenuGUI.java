@@ -4,6 +4,7 @@ import com.bountysmp.BountySMP;
 import com.bountysmp.util.GuiTitle;
 import com.bountysmp.util.Icons;
 import com.bountysmp.util.MenuTheme;
+import com.bountysmp.util.SidebarManager;
 import com.bountysmp.util.Sfx;
 import com.bountysmp.data.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -56,8 +57,10 @@ public class BountyMenuGUI implements Listener {
         profileMeta.lore(List.of(
                 Component.text("§7Coins : §e" + (long) data.getCoins()).decoration(TextDecoration.ITALIC, false),
                 Component.text("§7Prime sur toi : §c" + (long) data.getBounty()).decoration(TextDecoration.ITALIC, false),
-                Component.text("§7Primes récupérées : §a" + data.getBountiesClaimed()).decoration(TextDecoration.ITALIC, false)
+                Component.text("§7Primes récupérées : §a" + data.getBountiesClaimed()).decoration(TextDecoration.ITALIC, false),
+                Component.text("§8Clique pour voir tes statistiques").decoration(TextDecoration.ITALIC, false)
         ));
+        profileMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "open_stats");
         profile.setItemMeta(profileMeta);
         inv.setItem(13, profile);
 
@@ -75,6 +78,19 @@ public class BountyMenuGUI implements Listener {
 
         inv.setItem(26, buildActionItem(Icons.PALETTE, Material.PAINTING, "§dPersonnaliser le menu", "open_theme",
                 List.of("§7Change l'apparence de ton menu.")));
+
+        // scoreboard : désactivé / tableau des primes / tableau des chasseurs (clic = mode suivant)
+        ItemStack sidebar = new ItemStack(Material.OAK_SIGN);
+        ItemMeta sidebarMeta = sidebar.getItemMeta();
+        sidebarMeta.displayName(Component.text("§bScoreboard").decoration(TextDecoration.ITALIC, false));
+        sidebarMeta.lore(List.of(
+                Component.text("§7Mode : §f" + SidebarManager.label(data.getScoreboardMode())).decoration(TextDecoration.ITALIC, false),
+                Component.text("").decoration(TextDecoration.ITALIC, false),
+                Component.text("§7Clique pour changer :").decoration(TextDecoration.ITALIC, false),
+                Component.text("§8Désactivé > Primes > Chasseurs").decoration(TextDecoration.ITALIC, false)));
+        sidebarMeta.getPersistentDataContainer().set(actionKey, PersistentDataType.STRING, "toggle_scoreboard");
+        sidebar.setItemMeta(sidebarMeta);
+        inv.setItem(18, sidebar);
 
         player.openInventory(inv);
     }
@@ -108,6 +124,11 @@ public class BountyMenuGUI implements Listener {
             case "open_wanted" -> plugin.getWantedGUI().open(player);
             case "open_quests" -> plugin.getQuestGUI().open(player);
             case "open_theme" -> plugin.getThemeGUI().open(player);
+            case "open_stats" -> plugin.getStatsGUI().open(player, player);
+            case "toggle_scoreboard" -> {
+                plugin.getSidebarManager().cycle(player);
+                open(player);
+            }
         }
     }
 }

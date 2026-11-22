@@ -1,4 +1,4 @@
-# Bounty SMP (v1.1.0)
+# Bounty SMP (v1.2.0)
 
 Plugin Paper 1.21.x pour un SMP de chasse aux primes : monnaie **Bounty Coins**, primes sur les joueurs,
 boutique, quêtes quotidiennes, offres du jour, têtes de trophée, combat tag, marchand PNJ et menus personnalisables.
@@ -6,7 +6,7 @@ boutique, quêtes quotidiennes, offres du jour, têtes de trophée, combat tag, 
 ## Installation
 1. Compile avec GitHub Actions (le workflow `.github/workflows/build.yml` produit l'artifact **BountySMP-jar**).
 2. Mets le `.jar` dans `plugins/`, **un seul jar BountySMP** (supprime les anciens), puis redémarre.
-3. Au démarrage, la console doit afficher `BountySMP v1.1.0 chargé : 13 succès, /stats, ...` : c'est comme ça que tu vérifies que le bon jar tourne.
+3. Au démarrage, la console doit afficher `BountySMP v1.2.0 chargé : 13 succès, /stats, ...` : c'est comme ça que tu vérifies que le bon jar tourne.
 4. (Recommandé) Installe le resource pack `BountySMP-ResourcePack.zip` : hébergé en lien direct, puis dans `server.properties`
    `resource-pack=<lien>`, `resource-pack-sha1=<hash>`, `require-resource-pack=true`. Sans pack : `resource-pack.enabled: false` dans la config.
 5. Fais `/setworldspawn` au centre de ton spawn (la zone sans PvP et la Pierre de Rappel s'en servent).
@@ -17,8 +17,7 @@ boutique, quêtes quotidiennes, offres du jour, têtes de trophée, combat tag, 
 | `/bounty` | Menu principal (boutique, recherchés, top, quêtes, personnalisation) |
 | `/shop` | Ouvre la boutique |
 | `/sell` | Menu de vente : dépose minerais/têtes, ferme avec Échap pour encaisser |
-| `/balance` | Affiche ton solde et ta prime |
-| `/stats [joueur]` | Statistiques : kills, morts, K/D, primes encaissées, succès... |
+| `/stats [joueur]` | Menu des statistiques : combats, primes, trophées, quêtes, succès (solde visible seulement par toi ou un admin) |
 | `/pay <joueur> <montant>` | Envoie des coins (aussi `/bounty pay`) |
 | `/bounty add <joueur> <montant>` | Met une prime sur un joueur (tes coins sont dépensés) |
 
@@ -46,6 +45,7 @@ boutique, quêtes quotidiennes, offres du jour, têtes de trophée, combat tag, 
 - **Combat tag** : se déconnecter en combat = mort. **Zone sans PvP** autour du spawn, **protection** des nouveaux joueurs.
 - **Succès** (13, popups Minecraft) : Premier Achat, Première Prime, Chasseur Aguerri, Premier Sang, Tueur en Série, Chasseur de Légende,
   Millionnaire, Voleur, Sur la Liste, Tête Mise à Prix, Collectionneur, Bon Plan, Assidu.
+- **Scoreboard** : bouton du menu `/bounty` (panneau) pour afficher à droite de l'écran, au choix, le **tableau des primes** ou le **tableau des chasseurs** (désactivé par défaut, réglage personnel).
 - **Menu personnalisable** : le bouton palette du menu `/bounty` permet de choisir parmi 8 thèmes (choix sauvegardé par joueur).
 
 ## Configuration (`plugins/BountySMP/config.yml`)

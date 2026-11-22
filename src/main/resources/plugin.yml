@@ -1,5 +1,5 @@
 name: BountySMP
-version: 1.1.0
+version: 1.2.0
 main: com.bountysmp.BountySMP
 api-version: 1.21
 author: BountySMP
@@ -15,11 +15,8 @@ commands:
   shop:
     description: Ouvre la boutique Bounty.
     usage: /shop
-  balance:
-    description: Affiche ton solde de Bounty Coins.
-    usage: /balance [joueur]
   stats:
-    description: Affiche tes statistiques de chasseur de primes.
+    description: Ouvre le menu des statistiques d'un joueur.
     usage: /stats [joueur]
   pay:
     description: Envoie des Bounty Coins à un autre joueur.

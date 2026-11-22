@@ -1,6 +1,5 @@
 package com.bountysmp;
 
-import com.bountysmp.commands.BalanceCommand;
 import com.bountysmp.commands.BountyCommand;
 import com.bountysmp.commands.PayCommand;
 import com.bountysmp.commands.SellCommand;
@@ -9,6 +8,7 @@ import com.bountysmp.commands.ShopCommand;
 import com.bountysmp.data.DataManager;
 import com.bountysmp.gui.BountyMenuGUI;
 import com.bountysmp.gui.QuestGUI;
+import com.bountysmp.gui.StatsGUI;
 import com.bountysmp.gui.ThemeGUI;
 import com.bountysmp.gui.SellGUI;
 import com.bountysmp.gui.ShopGUI;
@@ -31,6 +31,7 @@ import com.bountysmp.listeners.TrackerListener;
 import com.bountysmp.quests.QuestListener;
 import com.bountysmp.quests.QuestManager;
 import com.bountysmp.util.AchievementUtil;
+import com.bountysmp.util.SidebarManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BountySMP extends JavaPlugin {
@@ -47,6 +48,8 @@ public final class BountySMP extends JavaPlugin {
     private QuestManager questManager;
     private QuestGUI questGUI;
     private ThemeGUI themeGUI;
+    private StatsGUI statsGUI;
+    private SidebarManager sidebarManager;
     private MerchantListener merchantListener;
     private CombatListener combatListener;
 
@@ -67,18 +70,17 @@ public final class BountySMP extends JavaPlugin {
         this.questManager = new QuestManager(this);
         this.questGUI = new QuestGUI(this);
         this.themeGUI = new ThemeGUI(this);
+        this.statsGUI = new StatsGUI(this);
+        this.sidebarManager = new SidebarManager(this);
         this.achievementUtil = new AchievementUtil(this);
         this.achievementUtil.registerAdvancements();
-        getLogger().info("BountySMP v" + getDescription().getVersion() + " chargé : " + achievementUtil.total() + " succès, /stats, /pay, /balance, quêtes, offres du jour, marchand, combat tag.");
+        getLogger().info("BountySMP v" + getDescription().getVersion() + " chargé : " + achievementUtil.total() + " succès, /stats, /pay, scoreboard, quêtes, offres du jour, marchand, combat tag.");
 
         // Commandes
         BountyCommand bountyCommand = new BountyCommand(this);
         getCommand("bounty").setExecutor(bountyCommand);
         getCommand("bounty").setTabCompleter(bountyCommand);
         getCommand("sell").setExecutor(new SellCommand(this));
-        BalanceCommand balanceCommand = new BalanceCommand(this);
-        getCommand("balance").setExecutor(balanceCommand);
-        getCommand("balance").setTabCompleter(balanceCommand);
         PayCommand payCommand = new PayCommand(this);
         getCommand("pay").setExecutor(payCommand);
         getCommand("pay").setTabCompleter(payCommand);
@@ -113,6 +115,10 @@ public final class BountySMP extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RecallStoneListener(this), this);
         getServer().getPluginManager().registerEvents(questGUI, this);
         getServer().getPluginManager().registerEvents(themeGUI, this);
+        getServer().getPluginManager().registerEvents(statsGUI, this);
+        getServer().getPluginManager().registerEvents(sidebarManager, this);
+        getServer().getScheduler().runTaskTimer(this, sidebarManager::tick, 40L,
+                20L * Math.max(1, getConfig().getInt("scoreboard.update-seconds", 3)));
         this.merchantListener = new MerchantListener(this);
         getServer().getPluginManager().registerEvents(merchantListener, this);
         this.combatListener = new CombatListener(this);
@@ -187,5 +193,13 @@ public final class BountySMP extends JavaPlugin {
 
     public CombatListener getCombatListener() {
         return combatListener;
+    }
+
+    public StatsGUI getStatsGUI() {
+        return statsGUI;
+    }
+
+    public SidebarManager getSidebarManager() {
+        return sidebarManager;
     }
 }

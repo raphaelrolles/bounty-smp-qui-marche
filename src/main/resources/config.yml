@@ -228,6 +228,11 @@ spawn-protection:
 # ---------------------------------------------------------------------
 #  6) APPARENCE
 # ---------------------------------------------------------------------
+# Scoreboard latéral (chaque joueur l'active depuis le menu /bounty) : mise à jour et nombre de lignes (3 à 15).
+scoreboard:
+  update-seconds: 3
+  lines: 8
+
 # Resource pack (BountySMP-ResourcePack.zip) : textures des objets et fonds des menus.
 # Mets false pour des menus et icônes 100 % vanilla (si tu n'utilises pas le pack).
 resource-pack:

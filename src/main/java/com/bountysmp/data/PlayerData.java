@@ -71,6 +71,9 @@ public class PlayerData {
     private int kills, deaths, trophiesSold, pickpockets, questsDone;
     private double highestBounty;
 
+    // Scoreboard latéral : "off", "bounties" ou "hunters"
+    private String scoreboardMode = "off";
+
     public PlayerData(UUID uuid) {
         this.uuid = uuid;
     }
@@ -289,5 +292,13 @@ public class PlayerData {
         this.trophiesSold = trophiesSold;
         this.pickpockets = pickpockets;
         this.questsDone = questsDone;
+    }
+
+    public String getScoreboardMode() {
+        return scoreboardMode;
+    }
+
+    public void setScoreboardMode(String scoreboardMode) {
+        this.scoreboardMode = scoreboardMode;
     }
 }

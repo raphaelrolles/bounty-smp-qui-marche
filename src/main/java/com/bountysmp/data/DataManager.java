@@ -142,6 +142,7 @@ public class DataManager {
                 data.setMenuTheme(s.getString("menuTheme", "pirate"));
                 data.loadStats(s.getInt("kills", 0), s.getInt("deaths", 0), s.getDouble("highestBounty", 0),
                         s.getInt("trophiesSold", 0), s.getInt("pickpockets", 0), s.getInt("questsDone", 0));
+                data.setScoreboardMode(s.getString("scoreboardMode", "off"));
 
                 ConfigurationSection contribSection = s.getConfigurationSection("contributors");
                 if (contribSection != null) {
@@ -209,6 +210,7 @@ public class DataManager {
             yaml.set(path + ".trophiesSold", data.getTrophiesSold());
             yaml.set(path + ".pickpockets", data.getPickpockets());
             yaml.set(path + ".questsDone", data.getQuestsDone());
+            yaml.set(path + ".scoreboardMode", data.getScoreboardMode());
             for (Map.Entry<String, Double> c : data.getBountyContributors().entrySet()) {
                 yaml.set(path + ".contributors." + c.getKey(), c.getValue());
             }
